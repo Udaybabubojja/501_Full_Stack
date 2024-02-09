@@ -22,6 +22,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser("Something is there"));
 app.use(flash());
+
+
 // Passport middleware setup
 app.use(session({
     secret: "my_secret_key1332141",
@@ -37,7 +39,7 @@ passport.use(new LocalStrategy({
     passwordField: 'password'
 }, async (username, password, done) => {
     try {
-        // Adjust this logic based on your user model and authentication mechanism
+        
         const user = await Accounts.findOne({
             where: {
                 email: username
