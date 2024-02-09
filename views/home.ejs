@@ -1,0 +1,44 @@
+<!-- views/home.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+</head>
+
+<body class="bg-gray-100 p-8">
+  <div class="mt-8">
+    <form action="/logout" method="post">
+      <button type="submit" class="bg-red-500 text-white p-2 rounded">Sign Out</button>
+    </form>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+
+    <% if (eventsData.length > 0) { %>
+      <% eventsData.forEach(event => { %>
+        <div class="bg-gray-200 p-8 rounded shadow-md flex flex-col justify-between h-full">
+          <div>
+            <h2 class="text-xl font-bold mb-2"><%= event.eventName %></h2>
+            <p class="text-gray-600 mb-2">Max Team Size: <%= event.maxSize %></p>
+            <p class="text-gray-600 mb-2">Description: <%= event.description %></p>
+          </div>
+          <div class="mt-4">
+            <a href="/join?id=<%= event.id %>" class="bg-indigo-500 text-white p-2 rounded">Join</a>
+            <a href="/joinAsTeam?id=<%= event.maxSize %>" class="bg-yellow-500 text-white p-2 rounded ml-2">Join as Team</a>
+          </div>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <p>No events available</p>
+    <% } %>
+
+  </div>
+
+</body>
+
+</html>

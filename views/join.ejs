@@ -1,0 +1,54 @@
+<!-- views/join.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join Event</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+</head>
+
+<body class="bg-gray-100 p-8">
+
+  <div class="max-w-md mx-auto bg-white p-8 rounded shadow-md">
+    <% if (eventData) { %>
+      <h1 class="text-2xl font-bold mb-6"><%= eventData.eventName %></h1>
+      <p class="text-gray-600 mb-4">Max Team Size: <%= eventData.maxSize %></p>
+      <p class="text-gray-600 mb-4">Description: <%= eventData.description %></p>
+
+      <% if (errors && errors.length > 0) { %>
+        <div class="mb-4 text-red-500">
+          <p>Validation Errors:</p>
+          <ul>
+            <% errors.forEach(error => { %>
+              <li><%= error.message %></li>
+            <% }); %>
+          </ul>
+        </div>
+      <% } %>
+
+      <form action="/join?id=<%= eventData.id %>" method="POST">
+        <label for="name" class="block text-sm font-medium text-gray-600 mb-2">Name:</label>
+        <input type="text" id="name" name="name" required class="mt-1 p-2 border rounded-md w-full mb-4">
+
+        <label for="email" class="block text-sm font-medium text-gray-600 mb-2">Email:</label>
+        <input type="email" id="email" name="email" required class="mt-1 p-2 border rounded-md w-full mb-4">
+
+        <label for="phone" class="block text-sm font-medium text-gray-600 mb-2">Phone Number:</label>
+        <input type="tel" id="phone" name="phone" required class="mt-1 p-2 border rounded-md w-full mb-4">
+
+        <button type="submit" class="bg-purple-500 text-white p-2 rounded-md">Submit</button>
+      </form>
+
+    <% } else { %>
+      <p>No event details available</p>
+    <% } %>
+
+  </div>
+
+</body>
+
+</html>
