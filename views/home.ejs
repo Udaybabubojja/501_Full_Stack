@@ -9,7 +9,6 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-TkkwI1UMlATV2XzrN9oAlmTdrj3UPo+Y0CUXjzHjOHzlStgnlB2Z0fRrKvNFf4Dks3J3Mz8PckzsgPDS6pnfZQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
-    /* Custom styles */
     .profile-btn {
       background-color: #4CAF50;
       color: white;
@@ -37,6 +36,20 @@
     .signout-btn:hover {
       background-color: #d32f2f;
     }
+
+    .create-event-btn {
+      background-color: #1E40AF;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .create-event-btn:hover {
+      background-color: #1E3799;
+    }
   </style>
 </head>
 
@@ -44,6 +57,9 @@
   <div class="flex justify-between items-center mb-8">
     <h1 class="text-2xl font-semibold">Welcome, User!</h1>
     <div>
+      <button class="create-event-btn mr-4" onclick="window.location.href='/events'">
+        <i class="fas fa-plus-circle mr-2"></i> Create Event
+      </button>
       <button class="profile-btn mr-4" onclick="window.location.href='/profile'">
         <i class="fas fa-user mr-2"></i> Profile
       </button>

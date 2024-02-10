@@ -74,6 +74,10 @@ passport.deserializeUser(async (id, done) => {
         done(error, null);
     }
 });
+//about page:
+app.get("/", (request, response)=>{
+    return response.render("about");
+})
 
 // Signup Route
 app.get("/signup", (request, response) => {

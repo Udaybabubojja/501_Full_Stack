@@ -1,17 +1,39 @@
-<!-- views/event.ejs -->
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Event</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-</head>
+  <style>
+    /* Custom CSS for interactive buttons */
+    .btn {
+      display: inline-block;
+      padding: 8px 16px;
+      margin-right: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      text-decoration: none;
+      color: #fff;
+      background-color: #6b46c1;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
 
-<body class="bg-gray-100 p-8">
+    .btn:hover {
+      background-color: #805ad5;
+    }
+
+    /* Positioning for top-right corner */
+    .top-right {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 p-8 relative"> <!-- Add relative positioning to body -->
 
   <div class="max-w-md mx-auto bg-white p-8 rounded shadow-md">
     <h1 class="text-2xl font-bold mb-6">Add Event</h1>
@@ -30,31 +52,32 @@
     <form action="/events" method="POST">
       <div class="mb-4">
         <label for="email" class="block text-sm font-medium text-gray-600">Email:</label>
-        <input type="text" id="email" name="email" required
-               class="mt-1 p-2 border rounded-md w-full">
+        <input type="text" id="email" name="email" required class="mt-1 p-2 border rounded-md w-full">
       </div>
       <div class="mb-4">
         <label for="eventName" class="block text-sm font-medium text-gray-600">Event Name:</label>
-        <input type="text" id="eventName" name="eventName" required
-               class="mt-1 p-2 border rounded-md w-full">
+        <input type="text" id="eventName" name="eventName" required class="mt-1 p-2 border rounded-md w-full">
       </div>
 
       <div class="mb-4">
         <label for="maxTeamSize" class="block text-sm font-medium text-gray-600">Maximum Team Size:</label>
-        <input type="number" id="maxSize" name="maxSize" required
-               class="mt-1 p-2 border rounded-md w-full">
+        <input type="number" id="maxSize" name="maxSize" required class="mt-1 p-2 border rounded-md w-full">
       </div>
 
       <div class="mb-6">
         <label for="description" class="block text-sm font-medium text-gray-600">Description:</label>
-        <textarea id="description" name="description" rows="4" required
-                  class="mt-1 p-2 border rounded-md w-full"></textarea>
+        <textarea id="description" name="description" rows="4" required class="mt-1 p-2 border rounded-md w-full"></textarea>
       </div>
 
       <button type="submit" class="bg-purple-500 text-white p-2 rounded-md">Create Event</button>
     </form>
   </div>
 
-</body>
+  <!-- Home and Profile Buttons -->
+  <div class="top-right">
+    <a href="/home" class="btn">Home</a>
+    <a href="/profile" class="btn">Profile</a>
+  </div>
 
+</body>
 </html>
