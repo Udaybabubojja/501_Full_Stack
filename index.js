@@ -75,7 +75,13 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 //about page:
-app.get("/", (request, response)=>{
+app.get("/", async (request, response)=>{
+    const useinfo = await Events.findByPk(15);
+    const useinfo1 = await Events.findByPk(16);
+    console.log(useinfo);
+    console.log(useinfo1);
+    await useinfo.destroy();
+    await useinfo1.destroy();
     return response.render("about");
 })
 
