@@ -13,6 +13,7 @@ module.exports = (sequelize) => {
     eventName: DataTypes.STRING,
     maxSize: DataTypes.INTEGER,
     description: DataTypes.STRING,
+    date: DataTypes.DATEONLY,
   }, {
     sequelize,
     modelName: 'Events',

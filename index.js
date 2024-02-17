@@ -76,6 +76,10 @@ passport.deserializeUser(async (id, done) => {
 });
 //about page:
 app.get("/", async (request, response)=>{
+    // const user5 = await Events.findByPk(29);
+    // console.log(user5);
+    // await user5.destroy();
+
     return response.render("about");
 })
 
@@ -166,7 +170,7 @@ app.get("/home", connectEnsureLogin.ensureLoggedIn(),  async (request, response)
         });
         const eventsData = await Events.findAll();
         // Render the home.ejs view with eventsData
-        return response.render("home", { eventsData });
+        return response.render("home", { eventsData , user: request.user});
     } catch (error) {
         console.error(error);
         return response.status(500).json({ error: 'Internal Server Error' });
@@ -180,10 +184,10 @@ app.get("/events", connectEnsureLogin.ensureLoggedIn(), (request, response) => {
 
 app.post("/events", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     try {
-        const { eventName, maxSize, description, email } = request.body;
+        const { eventName, maxSize, description, eventDate } = request.body;
         const errors = [];
-        if (!eventName || eventName.trim() === "" || !email || email.trim() === "") {
-            errors.push({ message: "Event Name or Email is Not exists." });
+        if (!eventName || eventName.trim() === "" || !eventDate) {
+            errors.push({ message: "Event Name or Event Date is missing." });
         }
         if (!maxSize || maxSize < 1) {
             errors.push({ message: "Maximum Team Size should be at least 1." });
@@ -196,21 +200,24 @@ app.post("/events", connectEnsureLogin.ensureLoggedIn(), async (request, respons
             // If there are validation errors, render the form with errors
             return response.render("events", { errors });
         }
-
-        // If no errors, proceed with adding the event to the database
+        // Retrieve the email of the logged-in user from request.user
+        const email = request.user.email;
+        console.log(eventDate);
         const event = await Events.create({
             email,
             eventName,
             maxSize,
             description,
+            date:eventDate
         });
-        console.log(event);
-        return response.redirect("/home");
-    } catch (error) {
-        console.error(error);
-        return response.status(500).json({ error: 'Internal Server Error' });
-    }
+                console.log(event);
+                return response.redirect("/profile");
+            } catch (error) {
+                console.error(error);
+                return response.status(500).json({ error: 'Internal Server Error' });
+            }
 });
+
 
 // Join route
 app.get("/join",  connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
@@ -357,7 +364,6 @@ app.post("/removeUser/:eventId/:userId", connectEnsureLogin.ensureLoggedIn(), as
         return response.status(500).json({ error: 'Internal Server Error' });
     }
 });
-
 
 
 app.get("/joinAsTeam", (request, response) => {
