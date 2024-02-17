@@ -11,6 +11,8 @@ const LocalStrategy = require('passport-local');
 const bcrypt = require('bcrypt');
 const connectEnsureLogin = require('connect-ensure-login');
 const flash = require('express-flash');
+const Sequelize = require('sequelize');
+
 // Set the view engine to EJS
 app.set("view engine", "ejs");
 
@@ -76,7 +78,7 @@ passport.deserializeUser(async (id, done) => {
 });
 //about page:
 app.get("/", async (request, response)=>{
-    // const user5 = await Events.findByPk(29);
+    // const user5 = await Events.findByPk(38);
     // console.log(user5);
     // await user5.destroy();
 
@@ -169,8 +171,13 @@ app.get("/home", connectEnsureLogin.ensureLoggedIn(),  async (request, response)
             },
         });
         const eventsData = await Events.findAll();
+        const account = await Accounts.findOne({
+            where: {
+                email: request.user.email
+            }
+        });
         // Render the home.ejs view with eventsData
-        return response.render("home", { eventsData , user: request.user});
+        return response.render("home", { eventsData , user: request.user, username: account.firstName});
     } catch (error) {
         console.error(error);
         return response.status(500).json({ error: 'Internal Server Error' });
@@ -195,7 +202,16 @@ app.post("/events", connectEnsureLogin.ensureLoggedIn(), async (request, respons
         if (!description || description.trim() === "") {
             errors.push({ message: "Description is required." });
         }
-
+        const existingEvent = await Events.findOne({
+            where: Sequelize.where(
+                Sequelize.fn('lower', Sequelize.col('eventName')),
+                Sequelize.fn('lower', eventName.trim())
+            )
+        });
+        
+        if (existingEvent) {
+            errors.push({ message: "Event Name is already exists" });
+        }
         if (errors.length > 0) {
             // If there are validation errors, render the form with errors
             return response.render("events", { errors });
@@ -203,9 +219,10 @@ app.post("/events", connectEnsureLogin.ensureLoggedIn(), async (request, respons
         // Retrieve the email of the logged-in user from request.user
         const email = request.user.email;
         console.log(eventDate);
+        const name = eventName.trim();
         const event = await Events.create({
             email,
-            eventName,
+            eventName: name,
             maxSize,
             description,
             date:eventDate

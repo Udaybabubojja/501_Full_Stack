@@ -55,7 +55,7 @@
 
 <body class="bg-gray-100 p-8">
   <div class="flex justify-between items-center mb-8">
-    <h1 class="text-2xl font-semibold">Welcome, User!</h1>
+    <h1 class="text-2xl font-semibold">Welcome,<%= user.firstName %> </h1>
     <div>
       <% if (user && user.isAdmin) { %>
         <!-- Only render the button if the user is an admin -->
@@ -77,11 +77,14 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
     <% if (eventsData.length > 0) { %>
       <% eventsData.forEach(event => { %>
+        <!-- Modify the event block to include the time left -->
         <div class="bg-gray-200 p-8 rounded shadow-md flex flex-col justify-between h-full">
           <div>
             <h2 class="text-xl font-bold mb-2"><%= event.eventName %></h2>
             <p class="text-gray-600 mb-2">Max Team Size: <%= event.maxSize %></p>
             <p class="text-gray-600 mb-2">Description: <%= event.description %></p>
+            <!-- Add a span to display the time left -->
+            <p class="text-gray-600 mb-2">Time Left: <span id="time-left-<%= event.id %>"></span></p>
           </div>
           <div class="mt-4">
             <a href="/join?id=<%= event.id %>" class="bg-indigo-500 text-white p-2 rounded">Join</a>
@@ -99,5 +102,38 @@
     <p>&copy; 2024 Your Website. All rights reserved.</p>
   </footer>
 </body>
+<script>
+  // Function to update time left for each event
+  function updateTimeLeft(eventId, eventDate) {
+    // Get the current time
+    var now = new Date().getTime();
+    // Set the event date
+    var countDownDate = new Date(eventDate).getTime();
+    // Calculate the time difference between now and the event date
+    var distance = countDownDate - now;
+    // Calculate days, hours, minutes, and seconds
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    // Display the time left
+    document.getElementById("time-left-" + eventId).innerHTML = days + "d " + hours + "h "
+      + minutes + "m " + seconds + "s ";
+    // Update the time left every second
+    if (distance > 0) {
+      setTimeout(function() {
+        updateTimeLeft(eventId, eventDate);
+      }, 1000);
+    } else {
+      // If the event has passed, display "Expired"
+      document.getElementById("time-left-" + eventId).innerHTML = "Expired";
+    }
+  }
+
+  // Call updateTimeLeft for each event
+  <% eventsData.forEach(event => { %>
+    updateTimeLeft(<%= event.id %>, '<%= event.date %>');
+  <% }); %>
+</script>
 
 </html>
