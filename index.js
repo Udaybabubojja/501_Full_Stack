@@ -4,7 +4,7 @@ const app = express();
 let cookieParser = require("cookie-parser");
 const path = require("path");
 const bodyParser = require("body-parser");
-const { Events, Users, Accounts } = require("./models");
+const { Events, Users, Accounts, Teams } = require("./models");
 const passport = require('passport');
 const session = require('express-session');
 const LocalStrategy = require('passport-local');
@@ -12,7 +12,7 @@ const bcrypt = require('bcrypt');
 const connectEnsureLogin = require('connect-ensure-login');
 const flash = require('express-flash');
 const Sequelize = require('sequelize');
-
+const { Op } = require('sequelize');
 // Set the view engine to EJS
 app.set("view engine", "ejs");
 
@@ -240,20 +240,20 @@ app.post("/events", connectEnsureLogin.ensureLoggedIn(), async (request, respons
 app.get("/join",  connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     try {
         const eventId = request.query.id;
-        Users.destroy({
-            where: {
-                eventId: null
-            }
-        })
-        .then((deletedRows) => {
-            console.log(`${deletedRows} rows deleted.`);
-        })
-        .catch((error) => {
-            console.error(error);
-        });
+        // Users.destroy({
+        //     where: {
+        //         eventId: null
+        //     }
+        // })
+        // .then((deletedRows) => {
+        //     console.log(`${deletedRows} rows deleted.`);
+        // })
+        // .catch((error) => {
+        //     console.error(error);
+        // });
         // Fetch event details using the eventId
         const eventData = await Events.findByPk(eventId);
-
+        console.log(eventData);
         // Check if eventData is null
         if (!eventData) {
             // Render an error page or redirect to the home page
@@ -325,6 +325,90 @@ app.post("/join", connectEnsureLogin.ensureLoggedIn(), async (request, response)
     }
 });
 
+app.get("/joinAsTeam", async (request, response) => {
+    try {
+        const eventId = request.query.id;
+        const eventData = await Events.findByPk(eventId);
+        console.log(eventData);
+        if (!eventData) {
+            return response.status(404).render("joinAsTeam", { errors: ["Event Not Found"] });
+        }
+        
+        return response.render("joinAsTeam", { eventData, errors: [], maxTeamSize: eventData.maxSize });
+    } catch (error) {
+        console.error(error);
+        return response.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.post("/submitTeam", async (request, response) => {
+    try {
+      let errors = [];
+      const { teamName, eventId, memberNames, memberEmails, memberPhones } = request.body;
+      const eventData = await Events.findByPk(eventId);
+      // Check if any required field is missing or empty
+      if (!teamName || teamName.trim() === '') {
+        errors.push({ message: 'Team Name is required' });
+      }
+      if (!eventId) {
+        errors.push({ message: 'Event ID is required' });
+      }
+      if (!memberNames || !Array.isArray(memberNames) || memberNames.length === 0 || memberNames.every(name => !name || name.trim() === '')) {
+        errors.push({ message: 'Member Name(s) cannot be empty' });
+      }
+      
+      if (!memberEmails || !Array.isArray(memberEmails) || memberEmails.length === 0 || memberEmails.every(email => !email || email.trim() === '')) {
+        errors.push({ message: 'Member Email(s) cannot be empty' });
+      }
+      
+      if (!memberPhones || !Array.isArray(memberPhones) || memberPhones.length === 0 || memberPhones.every(phone => !phone || phone.trim() === '')) {
+        errors.push({ message: 'Member Phone(s) cannot be empty' });
+      }
+      
+      
+      // Check if the team name already exists
+      const lowerCaseTeamName = teamName.toLowerCase();
+      const teamExists = await Teams.findOne({ where:Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), lowerCaseTeamName) });
+      if (teamExists) {
+        errors.push({ message: 'Team Name already exists' });
+      }
+  
+      // Check if any user with the same email and eventId already exists
+      const userExists = await Teams.findOne({
+        where: {
+          eventId,
+          memberEmails: {
+            [Op.overlap]: memberEmails  // Use Op.overlap for array comparison
+          }
+        }
+      });
+      if (userExists) {
+        errors.push({ message: 'User with the same email already exists for this event' });
+      }
+      
+      // If there are any errors, render the joinAsTeam view with the errors
+      if (errors.length > 0) {
+        return response.render("joinAsTeam", { eventData, errors, maxTeamSize: eventData.maxSize });
+      }
+      
+      // Create a new team if no errors were found
+      const newTeam = await Teams.create({
+        name: teamName,
+        eventId,
+        memberNames,
+        memberEmails,
+        memberPhones
+      });
+      console.log(newTeam);
+      response.redirect("/home");
+    } catch (error) {
+      console.error(error);
+      response.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+  
+  
+
 // Profile route
 app.get("/profile", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     try {
@@ -383,11 +467,7 @@ app.post("/removeUser/:eventId/:userId", connectEnsureLogin.ensureLoggedIn(), as
 });
 
 
-app.get("/joinAsTeam", (request, response) => {
-    const maxTeamSize = request.query.id;
-    console.log(maxTeamSize);
-    return response.render("joinAsTeam", { errors: [] , maxTeamSize});
-})
+
 
 // Start the server
 app.listen(3000, () => {

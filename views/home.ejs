@@ -88,7 +88,7 @@
           </div>
           <div class="mt-4">
             <a href="/join?id=<%= event.id %>" class="bg-indigo-500 text-white p-2 rounded">Join</a>
-            <a href="/joinAsTeam?id=<%= event.maxSize %>" class="bg-yellow-500 text-white p-2 rounded ml-2">Join as Team</a>
+            <a href="/joinAsTeam?id=<%= event.id%>" class="bg-yellow-500 text-white p-2 rounded ml-2">Join as Team</a>
           </div>
         </div>
       <% }); %>
@@ -109,16 +109,32 @@
     var now = new Date().getTime();
     // Set the event date
     var countDownDate = new Date(eventDate).getTime();
-    // Calculate the time difference between now and the event date
-    var distance = countDownDate - now;
+    
+    // Check if the event date is today
+    var isToday = new Date(eventDate).toDateString() === new Date().toDateString();
+
+    // If the event date is today, calculate time remaining until the end of the day
+    if (isToday) {
+      var endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999); // Set time to end of the day
+
+      // Calculate the time difference between now and the end of the day
+      var distance = endOfDay - now;
+    } else {
+      // Calculate the time difference between now and the event date
+      var distance = countDownDate - now;
+    }
+    
     // Calculate days, hours, minutes, and seconds
     var days = Math.floor(distance / (1000 * 60 * 60 * 24));
     var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
     // Display the time left
     document.getElementById("time-left-" + eventId).innerHTML = days + "d " + hours + "h "
       + minutes + "m " + seconds + "s ";
+
     // Update the time left every second
     if (distance > 0) {
       setTimeout(function() {
@@ -135,5 +151,6 @@
     updateTimeLeft(<%= event.id %>, '<%= event.date %>');
   <% }); %>
 </script>
+
 
 </html>
