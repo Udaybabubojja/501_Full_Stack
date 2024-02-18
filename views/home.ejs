@@ -86,9 +86,9 @@
             <!-- Add a span to display the time left -->
             <p class="text-gray-600 mb-2">Time Left: <span id="time-left-<%= event.id %>"></span></p>
           </div>
-          <div class="mt-4">
-            <a href="/join?id=<%= event.id %>" class="bg-indigo-500 text-white p-2 rounded">Join</a>
-            <a href="/joinAsTeam?id=<%= event.id%>" class="bg-yellow-500 text-white p-2 rounded ml-2">Join as Team</a>
+          <div class="<%= event.id %>">
+            <a href="/join?id=<%= event.id %>" class="bg-indigo-500 text-white p-2 rounded <% if (event.expired) { %> opacity-50 cursor-not-allowed <% } %>">Join</a>
+            <a href="/joinAsTeam?id=<%= event.id%>" class="bg-yellow-500 text-white p-2 rounded ml-2 <% if (event.expired) { %> opacity-50 cursor-not-allowed <% } %>">Join as Team</a>
           </div>
         </div>
       <% }); %>
@@ -103,54 +103,46 @@
   </footer>
 </body>
 <script>
-  // Function to update time left for each event
-  function updateTimeLeft(eventId, eventDate) {
-    // Get the current time
-    var now = new Date().getTime();
-    // Set the event date
-    var countDownDate = new Date(eventDate).getTime();
-    
-    // Check if the event date is today
-    var isToday = new Date(eventDate).toDateString() === new Date().toDateString();
+// Function to update time left for each event
+function updateTimeLeft(eventId, eventDate, eventTime) {
+  // Get the current date and time
+  var now = new Date();
 
-    // If the event date is today, calculate time remaining until the end of the day
-    if (isToday) {
-      var endOfDay = new Date();
-      endOfDay.setHours(23, 59, 59, 999); // Set time to end of the day
+  // Set the event date and time
+  var eventDateTime = new Date(eventDate + 'T' + eventTime);
 
-      // Calculate the time difference between now and the end of the day
-      var distance = endOfDay - now;
-    } else {
-      // Calculate the time difference between now and the event date
-      var distance = countDownDate - now;
-    }
-    
-    // Calculate days, hours, minutes, and seconds
-    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    
-    // Display the time left
-    document.getElementById("time-left-" + eventId).innerHTML = days + "d " + hours + "h "
-      + minutes + "m " + seconds + "s ";
+  // Calculate the time difference between now and the event date and time
+  var distance = eventDateTime - now;
 
-    // Update the time left every second
-    if (distance > 0) {
-      setTimeout(function() {
-        updateTimeLeft(eventId, eventDate);
-      }, 1000);
-    } else {
-      // If the event has passed, display "Expired"
-      document.getElementById("time-left-" + eventId).innerHTML = "Expired";
-    }
+  
+  // Calculate days, hours, minutes, and seconds
+  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  // Display the time left
+  document.getElementById("time-left-" + eventId).innerHTML = days + "d " + hours + "h "
+    + minutes + "m " + seconds + "s ";
+
+  // Update the time left every second
+  if (distance > 0) {
+    setTimeout(function() {
+      updateTimeLeft(eventId, eventDate, eventTime);
+    }, 1000);
+  } else {
+    // If the event has passed, display "Expired"
+    document.getElementById("time-left-" + eventId).innerHTML = "Expired";
+    document.getElementsByClassName(eventId).style.display = "none";
+
   }
+}
 
-  // Call updateTimeLeft for each event
-  <% eventsData.forEach(event => { %>
-    updateTimeLeft(<%= event.id %>, '<%= event.date %>');
-  <% }); %>
+// Call updateTimeLeft for each event
+<% eventsData.forEach(event => { %>
+  updateTimeLeft(<%= event.id %>, '<%= event.date %>', '<%= event.eventTime %>');
+<% }); %>
+
 </script>
-
 
 </html>

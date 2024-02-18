@@ -191,10 +191,10 @@ app.get("/events", connectEnsureLogin.ensureLoggedIn(), (request, response) => {
 
 app.post("/events", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     try {
-        const { eventName, maxSize, description, eventDate } = request.body;
+        const { eventName, maxSize, description, eventDate, eventTime } = request.body;
         const errors = [];
-        if (!eventName || eventName.trim() === "" || !eventDate) {
-            errors.push({ message: "Event Name or Event Date is missing." });
+        if (!eventName || eventName.trim() === "" || !eventDate || !eventTime) {
+            errors.push({ message: "Event Name or Event Date  or TIme is missing." });
         }
         if (!maxSize || maxSize < 1) {
             errors.push({ message: "Maximum Team Size should be at least 1." });
@@ -225,7 +225,8 @@ app.post("/events", connectEnsureLogin.ensureLoggedIn(), async (request, respons
             eventName: name,
             maxSize,
             description,
-            date:eventDate
+            date:eventDate,
+            eventTime
         });
                 console.log(event);
                 return response.redirect("/profile");
@@ -456,13 +457,43 @@ app.post("/submitTeam", async (request, response) => {
                 },
             ],
         });
-        return response.render("profile", { userCreatedEvents, userJoinedEvents, userJoinedTeams });
+        return response.render("profile", { userCreatedEvents, userJoinedEvents, userJoinedTeams, email: request.user.email});
     } catch (error) {
         console.error(error);
         return response.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
+app.post("/removeEMail/:email/:teamId", async (request, response) => {
+    try {
+        const email = request.params.email;
+        const teamId = request.params.teamId;
+
+        const team = await Teams.findByPk(teamId);
+
+        if (!team) {
+            return response.status(404).json({ error: "Team not found" });
+        }
+
+        const memberIndex = team.memberEmails.indexOf(email);
+        if (memberIndex === -1) {
+            return response.status(404).json({ error: "Email not found in team members" });
+        }
+
+        team.memberEmails.splice(memberIndex, 1);
+
+        if (team.memberEmails.length < 2) {
+            await team.destroy();
+        } else {
+            await team.save();
+        }
+
+        return response.redirect('/profile');
+    } catch (error) {
+        console.error(error);
+        return response.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 
 app.post('/removeUser/:userId', async (req, res) => {
@@ -509,13 +540,13 @@ app.post('/removeEvent/:eventId', async (req, res) => {
                 eventId: eventId
             }
         })
-        await l.destroy();
+        if(l) await l.destroy();
         const m = await Teams.findOne({
             where: {
                 eventId: eventId
             }
         })
-        await m.destroy();
+        if(m) await m.destroy();
 
         const k = await Events.findOne({
             where: {

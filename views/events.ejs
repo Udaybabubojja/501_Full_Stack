@@ -55,6 +55,10 @@
         <input type="date" id="eventDate" name="eventDate" required class="mt-1 p-2 border rounded-md w-full" min="<%= new Date().toISOString().split('T')[0] %>">
       </div>
       <div class="mb-4">
+        <label for="eventTime" class="block text-sm font-medium text-gray-600">Event Time:</label>
+        <input type="time" id="eventTime" name="eventTime" required class="mt-1 p-2 border rounded-md w-full">
+      </div>
+      <div class="mb-4">
         <label for="eventName" class="block text-sm font-medium text-gray-600">Event Name:</label>
         <input type="text" id="eventName" name="eventName" required class="mt-1 p-2 border rounded-md w-full">
       </div>

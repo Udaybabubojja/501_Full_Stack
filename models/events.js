@@ -15,6 +15,7 @@ module.exports = (sequelize) => {
     maxSize: DataTypes.INTEGER,
     description: DataTypes.STRING,
     date: DataTypes.DATEONLY,
+    eventTime: DataTypes.TIME,
   }, {
     sequelize,
     modelName: 'Events',

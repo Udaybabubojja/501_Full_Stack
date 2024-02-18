@@ -6,9 +6,20 @@
                 <div class="bg-white p-6 rounded-md shadow-md">
                     <h3 class="text-lg font-semibold mb-2">
                         <%= team.event.eventName %>
-                        <!-- Add more event details here if needed -->
                     </h3>
+                    <form method="post" action="/removeEmail/<%= email %>/<%= team.id %>" class="float-right">
+                        <button type="submit" class="trash-icon px-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 18" id="delete"><g fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"><g stroke="#000" stroke-width="2" transform="translate(-1441 -1567)"><g transform="translate(1442 1568)"><path d="M20 0H7L0 8l7 8h13a2 2 0 002-2V2a2 2 0 00-2-2zM17 5l-6 6M11 5l6 6"></path></g></g></g></svg>
+                        </button>
+                    </form>
                     <p class="text-gray-700 mb-4">Team: <%= team.name %></p>
+                    <h4 class="text-md font-semibold mb-2">Team Members:</h4>
+                    <ul class="list-disc pl-5 mb-4">
+                        <% team.memberEmails.forEach(memberEmail => { %>
+                            <li <% if (memberEmail === email) { %>class="font-bold"<% } %>><%= memberEmail %></li>
+                            <!-- You can add more member details here if needed -->
+                        <% }); %>
+                    </ul>
                 </div>
             <% }); %>
         </div>
