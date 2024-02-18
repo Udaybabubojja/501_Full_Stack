@@ -230,6 +230,7 @@ app.post("/events", connectEnsureLogin.ensureLoggedIn(), async (request, respons
                 console.log(event);
                 return response.redirect("/profile");
             } catch (error) {
+                console.log("Profile error");
                 console.error(error);
                 return response.status(500).json({ error: 'Internal Server Error' });
             }
@@ -412,6 +413,8 @@ app.post("/submitTeam", async (request, response) => {
   app.get("/profile", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     try {
         const loggedInUserEmail = request.user.email;
+        
+        // Find all events created by the logged-in user
         const userCreatedEvents = await Events.findAll({
             where: {
                 email: loggedInUserEmail,
@@ -427,8 +430,33 @@ app.post("/submitTeam", async (request, response) => {
                 }
             ],
         });
-        console.log(userCreatedEvents);
-        return response.render("profile", {userCreatedEvents});
+        
+        // Find all events in which the user is enrolled
+        const userJoinedEvents = await Users.findAll({
+            where: {
+                email: loggedInUserEmail,
+            },
+            include: [
+                {
+                    model: Events,
+                    as: 'event', // Assuming the association between Users and Events is defined as 'event'
+                },
+            ],
+        });
+        const userJoinedTeams = await Teams.findAll({
+            where: {
+                memberEmails: {
+                    [Op.contains] : [loggedInUserEmail]
+                },
+            },
+            include: [
+                {
+                    model: Events,
+                    as: 'event', // Assuming the association between Users and Events is defined as 'event'
+                },
+            ],
+        });
+        return response.render("profile", { userCreatedEvents, userJoinedEvents, userJoinedTeams });
     } catch (error) {
         console.error(error);
         return response.status(500).json({ error: 'Internal Server Error' });
@@ -437,8 +465,71 @@ app.post("/submitTeam", async (request, response) => {
 
 
 
+app.post('/removeUser/:userId', async (req, res) => {
+    try{
+        const userId= req.params.userId;
+        const k = await Users.findOne({
+            where: {
+                id: userId
+            }
+        })
+        console.log(k);
+        await k.destroy();
+        res.redirect("/profile");
+    }catch (error) {
+        console.error(error);
+        return response.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
+app.post('/removeTeam/:teamId', async (req, res) => {
+    try{
+        const teamId= req.params.teamId;
+        const k = await Teams.findOne({
+            where: {
+                id: teamId
+            }
+        })
+        console.log(k);
+        await k.destroy();
+        res.redirect("/profile");
+    }catch (error) {
+        console.error(error);
+        return response.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
+app.post('/removeEvent/:eventId', async (req, res) => {
+    try{
+        
+        const eventId= req.params.eventId;
+        console.log(eventId);
+        const l = await Users.findOne({
+            where: {
+                eventId: eventId
+            }
+        })
+        await l.destroy();
+        const m = await Teams.findOne({
+            where: {
+                eventId: eventId
+            }
+        })
+        await m.destroy();
+
+        const k = await Events.findOne({
+            where: {
+                id: eventId
+            }
+        })
+        console.log(k);
+        await k.destroy();
+        res.redirect("/profile");
+    }catch (error) {
+        console.error(error);
+        return response.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 // Start the server
 app.listen(3000, () => {
     console.log("Your app is running on port 3000! ");

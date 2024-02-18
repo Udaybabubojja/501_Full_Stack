@@ -1,24 +1,18 @@
-<!-- views/teamsSection.ejs -->
 <% if (userJoinedTeams.length > 0) { %>
-    <div class="mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Teams Joined by You</h2>
+    <div class="mt-8">
+        <h2 class="text-2xl font-semibold mb-4">Events Joined Through Teams</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <% userJoinedTeams.forEach(team => { %>
                 <div class="bg-white p-6 rounded-md shadow-md">
-                    <h3 class="text-xl font-semibold mb-4"><%= team.name %></h3>
-                    <p class="text-gray-700 mb-4">Event: <%= team.event.eventName %></p>
-                    <h4 class="text-md font-semibold mb-2">Members:</h4>
-                    <ul>
-                        <% team.memberNames.forEach((memberName, index) => { %>
-                            <li class="flex items-center mb-2">
-                                <span class="mr-2"><%= memberName %> - <%= team.memberEmails[index] %> - <%= team.memberPhones[index] %></span>
-                            </li>
-                        <% }); %>
-                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">
+                        <%= team.event.eventName %>
+                        <!-- Add more event details here if needed -->
+                    </h3>
+                    <p class="text-gray-700 mb-4">Team: <%= team.name %></p>
                 </div>
             <% }); %>
         </div>
     </div>
 <% } else { %>
-    <p class="text-gray-500">You haven't joined any teams yet.</p>
+    <p class="text-gray-500 mt-8">You're not joined in any events through teams.</p>
 <% } %>
