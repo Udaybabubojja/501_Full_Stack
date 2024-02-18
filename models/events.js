@@ -5,6 +5,7 @@ module.exports = (sequelize) => {
   class Events extends Model {
     static associate(models) {
       Events.hasMany(models.Users, { foreignKey: 'eventId', as: 'users' });
+      Events.hasMany(models.Teams, { foreignKey: 'eventId', as: 'teams' });
     }
   }
 

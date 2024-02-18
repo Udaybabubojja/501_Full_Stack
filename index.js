@@ -412,68 +412,29 @@ app.post("/submitTeam", async (request, response) => {
   app.get("/profile", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     try {
         const loggedInUserEmail = request.user.email;
-
-        // Find events created by the logged-in user
         const userCreatedEvents = await Events.findAll({
             where: {
                 email: loggedInUserEmail,
             },
-            include: {
-                model: Users,
-                as: 'users', // Assuming the association between Events and Users is defined as 'users'
-            },
-        });
-
-        // Find events in which the logged-in user is enrolled
-        const userEnrolledEvents = await Users.findAll({
-            where: {
-                email: loggedInUserEmail,
-            },
-            include: {
-                model: Events,
-                as: 'event',
-            },
-        });
-
-        // Find teams joined by the logged-in user
-        const userJoinedTeams = await Teams.findAll({
-            where: {
-                memberEmails: {
-                    [Sequelize.Op.contains]: [loggedInUserEmail],
+            include: [
+                {
+                    model: Users,
+                    as: 'users', // Assuming the association between Events and Users is defined as 'users'
                 },
-            },
-            include: {
-                model: Events,
-                as: 'event',
-            },
+                {
+                    model: Teams,
+                    as: 'teams', // Assuming the association between Events and Teams is defined as 'teams'
+                }
+            ],
         });
-
-        return response.render("profile", { userCreatedEvents, userEnrolledEvents, userJoinedTeams });
+        console.log(userCreatedEvents);
+        return response.render("profile", {userCreatedEvents});
     } catch (error) {
         console.error(error);
         return response.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
-
-
-// Add this route to handle user removal
-// Add this route to handle user removal
-app.post("/removeUser/:eventId/:userId", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
-    try {
-        const eventId = request.params.eventId;
-        const userId = request.params.userId;
-        
-        const user = await Users.findByPk(userId);
-        // Remove the user from the Users table
-        await user.destroy();
-        // Redirect to the profile page with a success message
-        return response.redirect("/profile");
-    } catch (error) {
-        console.error(error);
-        return response.status(500).json({ error: 'Internal Server Error' });
-    }
-});
 
 
 
