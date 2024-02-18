@@ -9,7 +9,7 @@
                     <p class="text-gray-700 mb-4">Created by: <%= event.email %></p>
                     <h4 class="text-md font-semibold mb-2">Enrolled Users:</h4>
                     <ul>
-                        <% const enrolledUsers = allEnrolledUsers.filter(user => user.eventId === event.id); %>
+                        <% const enrolledUsers = userCreatedEvents %>
                         <% enrolledUsers.forEach(user => { %>
                             <li class="flex items-center mb-2">
                                 <span class="mr-2"><%= user.name %> - <%= user.email %> - <%= user.phone %></span>

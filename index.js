@@ -409,8 +409,7 @@ app.post("/submitTeam", async (request, response) => {
   
   
 
-// Profile route
-app.get("/profile", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+  app.get("/profile", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     try {
         const loggedInUserEmail = request.user.email;
 
@@ -418,6 +417,10 @@ app.get("/profile", connectEnsureLogin.ensureLoggedIn(), async (request, respons
         const userCreatedEvents = await Events.findAll({
             where: {
                 email: loggedInUserEmail,
+            },
+            include: {
+                model: Users,
+                as: 'users', // Assuming the association between Events and Users is defined as 'users'
             },
         });
 
@@ -432,20 +435,26 @@ app.get("/profile", connectEnsureLogin.ensureLoggedIn(), async (request, respons
             },
         });
 
-        // Fetch all enrolled users (assuming there is a model for enrolled users)
-        const allEnrolledUsers = await Users.findAll({
+        // Find teams joined by the logged-in user
+        const userJoinedTeams = await Teams.findAll({
+            where: {
+                memberEmails: {
+                    [Sequelize.Op.contains]: [loggedInUserEmail],
+                },
+            },
             include: {
                 model: Events,
                 as: 'event',
             },
         });
 
-        return response.render("profile", { userCreatedEvents, userEnrolledEvents, allEnrolledUsers });
+        return response.render("profile", { userCreatedEvents, userEnrolledEvents, userJoinedTeams });
     } catch (error) {
         console.error(error);
         return response.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
 
 
 // Add this route to handle user removal

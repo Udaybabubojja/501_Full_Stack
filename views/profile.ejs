@@ -15,10 +15,13 @@
         <a href="/home" class="bg-blue-500 text-white py-2 px-4 rounded inline-block mb-4">Home</a>
 
         <!-- Include Events Section -->
-        <%- include('eventsSection', { userCreatedEvents, allEnrolledUsers }) %>
+        <%- include('eventsSection', { userCreatedEvents }) %>
 
         <!-- Include Users Section -->
         <%- include('usersSection', { userEnrolledEvents }) %>
+
+        <%- include('teamsSection', { userJoinedTeams }) %>
+
 
     </div>
     
