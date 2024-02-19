@@ -35,7 +35,20 @@
   </style>
 </head>
 <body class="bg-gray-100 p-8 relative"> <!-- Add relative positioning to body -->
-
+  <div class="flex justify-end">
+    <a href="/home" class="btn-primary flex items-center text-white bg-purple-500 py-2 px-4 rounded inline-block ml-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="23" height="22" viewBox="0 0 32 32" id="house" class="mr-2">
+            <path d="M1.656 17.756 16 5.324l14.344 12.432a1.001 1.001 0 0 0 1.312-1.512l-15-13a1 1 0 0 0-1.31 0L10 7.876V6a2 2 0 0 0-4 0v5.342L.344 16.244a1.003 1.003 0 0 0-.1 1.412c.364.416.994.462 1.412.1zM12 22h8v10h6a2 2 0 0 0 2-2v-9.802c0-.6-.268-1.166-.732-1.546l-10-8.198a1.996 1.996 0 0 0-2.536 0l-10 8.198A1.993 1.993 0 0 0 4 20.198V30a2 2 0 0 0 2 2h6V22z" fill="white"></path>
+        </svg>
+        <b>Home</b>
+    </a>
+    <a href="/profile" class="btn-primary flex items-center text-white bg-purple-500 py-2 px-4 rounded inline-block ml-3">
+      <i class="fas fa-user mr-2 display: flex">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" id="profile"><path fill="white" d="M5.84846399,13.5498221 C7.28813318,13.433801 8.73442297,13.433801 10.1740922,13.5498221 C10.9580697,13.5955225 11.7383286,13.6935941 12.5099314,13.8434164 C14.1796238,14.1814947 15.2696821,14.7330961 15.73685,15.6227758 C16.0877167,16.317132 16.0877167,17.1437221 15.73685,17.8380783 C15.2696821,18.727758 14.2228801,19.3149466 12.4926289,19.6174377 C11.7216312,19.7729078 10.9411975,19.873974 10.1567896,19.9199288 C9.43008411,20 8.70337858,20 7.96802179,20 L6.64437958,20 C6.36753937,19.9644128 6.09935043,19.9466192 5.83981274,19.9466192 C5.05537891,19.9062698 4.27476595,19.8081536 3.50397353,19.6530249 C1.83428106,19.3327402 0.744222763,18.7633452 0.277054922,17.8736655 C0.0967111971,17.5290284 0.00163408158,17.144037 0.000104217816,16.752669 C-0.00354430942,16.3589158 0.0886574605,15.9704652 0.268403665,15.6227758 C0.72692025,14.7330961 1.81697855,14.1548043 3.50397353,13.8434164 C4.27816255,13.6914539 5.06143714,13.5933665 5.84846399,13.5498221 Z M8.00262682,-1.16351373e-13 C10.9028467,-1.16351373e-13 13.2539394,2.41782168 13.2539394,5.40035587 C13.2539394,8.38289006 10.9028467,10.8007117 8.00262682,10.8007117 C5.10240696,10.8007117 2.75131423,8.38289006 2.75131423,5.40035587 C2.75131423,2.41782168 5.10240696,-1.16351373e-13 8.00262682,-1.16351373e-13 Z" transform="translate(4 2)"></path></svg>
+        <b class="cr ml-2">Profile</b>
+      </i>
+    </a>
+  </div>
   <div class="max-w-md mx-auto bg-white p-8 rounded shadow-md">
     <h1 class="text-2xl font-bold mb-6">Add Event</h1>
 
@@ -49,7 +62,7 @@
         </ul>
       </div>
     <% } %>
-
+    
     <form action="/events" method="POST">
       <div class="mb-4">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -74,16 +87,11 @@
         <label for="description" class="block text-sm font-medium text-gray-600">Description:</label>
         <textarea id="description" name="description" rows="4" required class="mt-1 p-2 border rounded-md w-full"></textarea>
       </div>
-
       <button type="submit" class="bg-purple-500 text-white p-2 rounded-md">Create Event</button>
     </form>
   </div>
 
   <!-- Home and Profile Buttons -->
-  <div class="top-right">
-    <a href="/home" class="btn">Home</a>
-    <a href="/profile" class="btn">Profile</a>
-  </div>
 
 </body>
 </html>

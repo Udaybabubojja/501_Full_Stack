@@ -80,7 +80,7 @@
         <!-- Only render the button if the user is an admin -->
         <button class="create-event-btn mr-4" onclick="window.location.href='/events'">
           <i class="fas fa-plus-circle mr-2 display: flex ">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewbox=" 0 0 48 48"id="add"><path fill="none" d="M0 0h48v48H0z"></path><path d="M8 12H4v28c0 2.21 1.79 4 4 4h28v-4H8V12zm32-8H16c-2.21 0-4 1.79-4 4v24c0 2.21 1.79 4 4 4h24c2.21 0 4-1.79 4-4V8c0-2.21-1.79-4-4-4zm-2 18h-8v8h-4v-8h-8v-4h8v-8h4v8h8v4z" fill="white"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox=" 0 0 48 48"id="add"><path fill="none" d="M0 0h48v48H0z"></path><path d="M8 12H4v28c0 2.21 1.79 4 4 4h28v-4H8V12zm32-8H16c-2.21 0-4 1.79-4 4v24c0 2.21 1.79 4 4 4h24c2.21 0 4-1.79 4-4V8c0-2.21-1.79-4-4-4zm-2 18h-8v8h-4v-8h-8v-4h8v-8h4v8h8v4z" fill="white"></path></svg>
             <b class="cr ml-2">Create Event</b>
           </i>
         </button>
@@ -110,10 +110,11 @@
             <p class="text-gray-600 mb-2">Description: <%= event.description %></p>
             <!-- Add a span to display the time left -->
           </div>
+          <br>
           <% if (! (user.email === event.email)) { %>
             <div class="<%= event.id %>">
-              <a href="/join?id=<%= event.id %>" class="bg-indigo-500 text-white p-2 rounded <% if (event.expired) { %> opacity-50 cursor-not-allowed <% } %>">Join</a>
-              <a href="/joinAsTeam?id=<%= event.id%>" class="bg-yellow-500 text-white p-2 rounded ml-2 <% if (event.expired) { %> opacity-50 cursor-not-allowed <% } %>">Join as Team</a>
+              <a href="/join?id=<%= event.id %>" class="bg-indigo-500 text-white p-3 rounded <% if (event.expired) { %> opacity-50 cursor-not-allowed <% } %>">Join</a>
+              <a href="/joinAsTeam?id=<%= event.id%>" class="bg-yellow-500 text-white p-3 rounded ml-2 <% if (event.expired) { %> opacity-50 cursor-not-allowed <% } %>">Join as Team</a>
             </div>
           <% } %>
           

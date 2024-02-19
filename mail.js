@@ -4,8 +4,8 @@ const transporter = nodemailer.createTransport({
     port: 587,
     secure: false, 
     auth: {
-        user: 'events_organiser@outlook.com', 
-        pass: 'Events@Organiser' 
+        user: 'Event_organiser@outlook.com', 
+        pass: 'Event@organiser' 
     }
 });
 module.exports = transporter;

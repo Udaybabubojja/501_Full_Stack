@@ -132,7 +132,7 @@ app.post("/signup", async (request, response) => {
             isAdmin
         });
         await transporter.sendMail({
-            from: '"Events Organiser" <events_organiser@outlook.com>',
+            from: '"Events Organiser" <Event_organiser@outlook.com>',
             to: email,
             subject: 'Welcome to Events Organiser',
             html: `
@@ -254,7 +254,7 @@ app.post("/events", connectEnsureLogin.ensureLoggedIn(), async (request, respons
             eventTime
         });
         await transporter.sendMail({
-            from: '"Events Organiser" <events_organiser@outlook.com>',
+            from: '"Events Organiser" <Event_organiser@outlook.com>',
             to: email,
             subject: 'Event Created Successfully',
             html: `
@@ -272,7 +272,7 @@ app.post("/events", connectEnsureLogin.ensureLoggedIn(), async (request, respons
             `,
         });
         console.log("Details of the Event: ", event);
-        response.render("/profile");
+        response.redirect("/profile");
     } catch (error) {
         console.log("Profile error");
         console.error(error);
@@ -365,7 +365,7 @@ app.post("/join", connectEnsureLogin.ensureLoggedIn(), async (request, response)
         
         // Send enrollment confirmation email to the user
         await transporter.sendMail({
-            from: '"Events Organiser" <events_organiser@outlook.com>',
+            from: '"Event Organiser" <Event_organiser@outlook.com>',
             to: email,
             subject: 'Enrollment Confirmation for Event',
             html: `
@@ -479,7 +479,7 @@ app.post("/submitTeam", async (request, response) => {
         // Send email notification to each member
         for (const email of memberEmails) {
             await transporter.sendMail({
-                from: '"Events Organiser" <events_organiser@outlook.com>',
+                from: '"Events Organiser" <Event_organiser@outlook.com>',
                 to: email,
                 subject: 'Team Enrollment Confirmation',
                 html: `
@@ -594,7 +594,7 @@ app.post("/removeEmail/:email/:teamId", connectEnsureLogin.ensureLoggedIn(), asy
         const remainingMembers = team.memberEmails;
         for (const email of remainingMembers) {
             await transporter.sendMail({
-                from: '"Events Organiser" <events_organiser@outlook.com>',
+                from: '"Events Organiser" <Event_organiser@outlook.com>',
                 to: email,
                 subject: 'Team Member Exit',
                 html: `
@@ -639,7 +639,7 @@ app.post('/removeUser/:userId', connectEnsureLogin.ensureLoggedIn(), async (req,
 
         // Send email notification to the user
         await transporter.sendMail({
-            from: '"Events Organiser" <events_organiser@outlook.com>',
+            from: '"Events Organiser" <Event_organiser@outlook.com>',
             to: userEmail,
             subject: 'Removed from Event',
             html: `
@@ -675,7 +675,7 @@ app.post('/removeTeam/:teamId', connectEnsureLogin.ensureLoggedIn(), async (req,
         // Send email notification to team members
         for (const email of teamMembers) {
             await transporter.sendMail({
-                from: '"Events Organiser" <events_organiser@outlook.com>',
+                from: '"Events Organiser" <Event_organiser@outlook.com>',
                 to: email,
                 subject: 'Team Disbanded',
                 html: `
@@ -720,7 +720,7 @@ app.post('/removeEvent/:eventId', connectEnsureLogin.ensureLoggedIn(), async (re
         // Send email notification to all event participants and team members
         for (const email of allEmails) {
             await transporter.sendMail({
-                from: '"Events Organiser" <events_organiser@outlook.com>',
+                from: '"Events Organiser" <Event_organiser@outlook.com>',
                 to: email,
                 subject: 'Event Cancelled',
                 html: `

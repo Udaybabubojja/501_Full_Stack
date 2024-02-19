@@ -5,29 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Assuming you have Font Awesome installed for the icon -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .fadeIn {
+            animation-name: fadeIn;
+            animation-duration: 0.5s;
+        }
+
+        /* Custom Colors */
+        .btn-primary {
+            background-color: #4CAF50;
+        }
+        .btn-secondary {
+            background-color: #f44336;
+        }
+
+        /* Background Image */
+        body {
+            background-image: url('../public/b.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen font-sans ml-3">
+<body class="bg-gray-100 min-h-screen font-sans ml-3 p-8">
 
     <div class="container mx-auto py-8">
         <h1 class="text-3xl font-bold mb-8">User Profile</h1>
 
-        <!-- Home Button -->
-        <a href="/home" class="bg-blue-500 text-white py-2 px-4 rounded inline-block mb-4">Home</a>
-        <form action="/logout" method="post" class="inline-block">
-            <button type="submit" class="signout-btn">
-              <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            </button>
-          </form>
-        <!-- Include Events Section -->
-        <%- include('eventsSection', { userCreatedEvents, csrfToken:csrfToken }) %>
-
-        <!-- Include Users Section-->
-        <%- include('usersSection', { userJoinedEvents, csrfToken }) %>
+        <!-- Navigation -->
+        <nav class="mb-8 flex justify-end items-center">
+            <a href="/home" class="btn-primary flex items-center ml-3 text-white py-2 px-4 rounded inline-block transition-colors duration-300 hover:bg-green-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="23" height="22" viewBox="0 0 32 32" id="house" class="mr-2">
+                    <path d="M1.656 17.756 16 5.324l14.344 12.432a1.001 1.001 0 0 0 1.312-1.512l-15-13a1 1 0 0 0-1.31 0L10 7.876V6a2 2 0 0 0-4 0v5.342L.344 16.244a1.003 1.003 0 0 0-.1 1.412c.364.416.994.462 1.412.1zM12 22h8v10h6a2 2 0 0 0 2-2v-9.802c0-.6-.268-1.166-.732-1.546l-10-8.198a1.996 1.996 0 0 0-2.536 0l-10 8.198A1.993 1.993 0 0 0 4 20.198V30a2 2 0 0 0 2 2h6V22z" fill="white"></path>
+                </svg>
+                <b>Home</b>
+            </a>
+            
+            <form action="/logout" method="post">
+                <button type="submit" class="mr-3 ml-3 btn-secondary text-white py-2 px-4 rounded inline-block transition-colors duration-300 hover:bg-red-600">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                </button>
+            </form>
+        </nav>
         
-        <%- include('teamsSection', { userJoinedTeams, email, csrfToken }) %>
+        <!-- Events Section -->
+        <section class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Events Created</h2>
+            <div class="fadeIn">
+                <%- include('eventsSection', { userCreatedEvents, csrfToken:csrfToken }) %>
+            </div>
+        </section>
 
+        <!-- Users Section -->
+        <section class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Events Joined</h2>
+            <div class="fadeIn">
+                <%- include('usersSection', { userJoinedEvents, csrfToken }) %>
+            </div>
+        </section>
 
+        <!-- Teams Section -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">Teams</h2>
+            <div class="fadeIn">
+                <%- include('teamsSection', { userJoinedTeams, email, csrfToken }) %>
+            </div>
+        </section>
     </div>
     
 </body>
