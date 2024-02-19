@@ -425,7 +425,7 @@ app.post("/submitTeam", async (request, response) => {
         }
 
         const lowerCaseTeamName = teamName.toLowerCase();
-        const teamExists = await Teams.findOne({ where: Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), lowerCaseTeamName) });
+        const teamExists = await Teams.findOne({ where: eventId, name: Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), lowerCaseTeamName) });
         if (teamExists) {
             errors.push({ message: 'Team Name already exists' });
         }
@@ -439,6 +439,15 @@ app.post("/submitTeam", async (request, response) => {
             }
         });
         if (userExists) {
+            errors.push({ message: 'User with the same email already exists for this event' });
+        }
+        const userEmailMatches = await Users.findOne({
+            where: {
+                eventId,
+                email: memberEmails
+            }
+        });
+        if (userEmailMatches) {
             errors.push({ message: 'User with the same email already exists for this event' });
         }
 

@@ -9,6 +9,14 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-TkkwI1UMlATV2XzrN9oAlmTdrj3UPo+Y0CUXjzHjOHzlStgnlB2Z0fRrKvNFf4Dks3J3Mz8PckzsgPDS6pnfZQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
+    * {
+        background-image: url('b.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+
+
     .profile-btn {
       background-color: #4CAF50;
       color: white;
@@ -50,17 +58,33 @@
     .create-event-btn:hover {
       background-color: #1E3799;
     }
+    .time-left-block {
+      float: right; /* Align the block to the right */
+      padding: 2px 5px;
+      top: 0;
+      background-color: #ff071b; /* Light red background for highlighting */
+      color: #fefdfd; /* Dark red text for highlighting */
+      border-radius: 5px;
+      font-size: 15px;
+      font-weight: bold;
+    }
+    
   </style>
 </head>
 
-<body class="bg-gray-100 p-8">
+<body class=" p-8 ">
   <div class="flex justify-between items-center mb-8">
     <h1 class="text-2xl font-semibold">Welcome,<%= user.firstName %> </h1>
     <div>
       <% if (user && user.isAdmin) { %>
         <!-- Only render the button if the user is an admin -->
         <button class="create-event-btn mr-4" onclick="window.location.href='/events'">
-          <i class="fas fa-plus-circle mr-2"></i> Create Event
+          <i class="fas fa-plus-circle mr-2 display: flex ">
+            <svg id="plus" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3h18v18H3zM12 8v8m-4-4h8" fill="white"/> <!-- Apply fill="white" to the path element -->
+            </svg>
+            <b class="cr ml-2">Create Event</b>
+          </i>
         </button>
       <% } %>
       <button class="profile-btn mr-4" onclick="window.location.href='/profile'">
@@ -80,16 +104,22 @@
         <!-- Modify the event block to include the time left -->
         <div class="bg-gray-200 p-8 rounded shadow-md flex flex-col justify-between h-full">
           <div>
+            <!-- Place the time left block next to the icon -->
+            <span id="time-left-<%= event.id %>" class="time-left-block"></span>
             <h2 class="text-xl font-bold mb-2"><%= event.eventName %></h2>
+            <h4 class="text-gray-900 mb-2">Date: <%= event.date %></h4>
+            <h4 class="text-gray-900 mb-2">Time: <%= event.eventTime %></h4>
             <p class="text-gray-600 mb-2">Max Team Size: <%= event.maxSize %></p>
             <p class="text-gray-600 mb-2">Description: <%= event.description %></p>
             <!-- Add a span to display the time left -->
-            <p class="text-gray-600 mb-2">Time Left: <span id="time-left-<%= event.id %>"></span></p>
           </div>
-          <div class="<%= event.id %>">
-            <a href="/join?id=<%= event.id %>" class="bg-indigo-500 text-white p-2 rounded <% if (event.expired) { %> opacity-50 cursor-not-allowed <% } %>">Join</a>
-            <a href="/joinAsTeam?id=<%= event.id%>" class="bg-yellow-500 text-white p-2 rounded ml-2 <% if (event.expired) { %> opacity-50 cursor-not-allowed <% } %>">Join as Team</a>
-          </div>
+          <% if (! (user.email === event.email)) { %>
+            <div class="<%= event.id %>">
+              <a href="/join?id=<%= event.id %>" class="bg-indigo-500 text-white p-2 rounded <% if (event.expired) { %> opacity-50 cursor-not-allowed <% } %>">Join</a>
+              <a href="/joinAsTeam?id=<%= event.id%>" class="bg-yellow-500 text-white p-2 rounded ml-2 <% if (event.expired) { %> opacity-50 cursor-not-allowed <% } %>">Join as Team</a>
+            </div>
+          <% } %>
+          
         </div>
       <% }); %>
     <% } else { %>
