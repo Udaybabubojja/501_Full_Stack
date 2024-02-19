@@ -2,6 +2,7 @@
 const express = require("express");
 const app = express();
 let cookieParser = require("cookie-parser");
+const csrf = require("tiny-csrf");
 const path = require("path");
 const bodyParser = require("body-parser");
 const { Events, Users, Accounts, Teams } = require("./models");
@@ -24,8 +25,10 @@ app.set("views", path.join(__dirname, "views"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser("Something is there"));
+app.use(csrf("abcdefghijklmnopqrstuvwxyz123456", ["PUT", "POST", "DELETE"]));
 app.use(flash());
 
+app.use('/public', express.static(path.join(__dirname, 'public')))
 
 // Passport middleware setup
 app.use(session({
@@ -78,18 +81,18 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
+
 //about page:
 app.get("/", async (request, response)=>{
     // const user5 = await Events.findByPk(38);
     // console.log(user5);
     // await user5.destroy();
-
     return response.render("about");
 })
 
 // Signup Route
 app.get("/signup", (request, response) => {
-    return response.render("signup", { errors: [] });
+    return response.render("signup", { errors: [], csrfToken: request.csrfToken() });
 });
 
 app.post("/signup", async (request, response) => {
@@ -109,17 +112,14 @@ app.post("/signup", async (request, response) => {
         if (!password || password.trim() === "") {
             errors.push({ message: "Password is required." });
         }
-
-        if (errors.length > 0) {
-            // If there are validation errors, render the signup form with errors
-            return response.render("signup", { errors });
-        }
-
-        // Check if an account with the same email already exists
         const existingAccount = await Accounts.findOne({ where: { email } });
         if (existingAccount) {
             errors.push({ message: "An account with this email already exists." });
-            return response.render("signup", { errors });
+            
+        }
+        if (errors.length > 0) {
+            // If there are validation errors, render the signup form with errors
+            return response.render("signup", { errors, csrfToken: request.csrfToken() });
         }
 
         // If no errors, proceed with creating the account
@@ -143,7 +143,7 @@ app.post("/signup", async (request, response) => {
             `
         });
         console.log(account);
-        return response.redirect("/home");
+        return response.redirect("/login");
     } catch (error) {
         console.error(error);
         return response.status(500).json({ error: 'Internal Server Error' });
@@ -151,9 +151,13 @@ app.post("/signup", async (request, response) => {
 });
 
 // Login route
-app.get("/login", (request, response) => {
+app.get("/login", async (request, response) => {
     // Render the login form with flash messages
-    response.render("login", { errors: request.flash('error') });
+    const a = await request.user;
+    console.log(a);
+    if(!a)
+    response.render("login", { errors: request.flash('error'), csrfToken: request.csrfToken() });
+    else response.redirect("/home");
 });
 
 app.post("/login", passport.authenticate('local', {
@@ -168,15 +172,24 @@ app.post("/logout", (request, response) => {
         if (err) {
             return response.status(500).json({ error: 'Logout failed' });
         }
-        response.redirect("/login");
+        // Clear user session
+        request.session.destroy((err) => {
+            if (err) {
+                return response.status(500).json({ error: 'Session destroy failed' });
+            }
+            // Redirect to login page
+            response.redirect("/login");
+        });
     });
 });
+
 
 
 // Home route
 app.get("/home", connectEnsureLogin.ensureLoggedIn(),  async (request, response) => {
     try {
         // Fetch all events from the database
+        if(!request.user) response.redirect("/login");
         await Events.destroy({
             where: {
                 email: null,
@@ -189,7 +202,7 @@ app.get("/home", connectEnsureLogin.ensureLoggedIn(),  async (request, response)
             }
         });
         // Render the home.ejs view with eventsData
-        return response.render("home", { eventsData , user: request.user, username: account.firstName});
+        return response.render("home", { eventsData , user: request.user, username: account.firstName, csrfToken: request.csrfToken()});
     } catch (error) {
         console.error(error);
         return response.status(500).json({ error: 'Internal Server Error' });
@@ -198,7 +211,7 @@ app.get("/home", connectEnsureLogin.ensureLoggedIn(),  async (request, response)
 
 // Events route
 app.get("/events", connectEnsureLogin.ensureLoggedIn(), (request, response) => {
-    return response.render("events", { errors: [] });
+    return response.render("events", { errors: [] , csrfToken: request.csrfToken()});
 });
 
 app.post("/events", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
@@ -226,7 +239,7 @@ app.post("/events", connectEnsureLogin.ensureLoggedIn(), async (request, respons
         }
         if (errors.length > 0) {
             // If there are validation errors, render the form with errors
-            return response.render("events", { errors });
+            return response.render("events", { errors,  csrfToken: request.csrfToken() });
         }
         // Retrieve the email of the logged-in user from request.user
         const email = request.user.email;
@@ -259,7 +272,7 @@ app.post("/events", connectEnsureLogin.ensureLoggedIn(), async (request, respons
             `,
         });
         console.log("Details of the Event: ", event);
-        response.redirect("/home");
+        response.render("/profile");
     } catch (error) {
         console.log("Profile error");
         console.error(error);
@@ -289,10 +302,10 @@ app.get("/join",  connectEnsureLogin.ensureLoggedIn(), async (request, response)
         // Check if eventData is null
         if (!eventData) {
             // Render an error page or redirect to the home page
-            return response.status(404).render("join", {errors: ["Event Not Found"]} );
+            return response.status(404).render("join", {errors: ["Event Not Found"], csrfToken: request.csrfToken() } );
         }
         // Render the join.ejs view with event details
-        return response.render("join", { eventData, errors: [] });
+        return response.render("join", { eventData, errors: [], csrfToken: request.csrfToken() });
     } catch (error) {
         console.error(error);
         return response.status(500).json({ error: 'Internal Server Error' });
@@ -301,6 +314,7 @@ app.get("/join",  connectEnsureLogin.ensureLoggedIn(), async (request, response)
 
 app.post("/join", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     try {
+
         const eventId = request.query.id;
         console.log(eventId);
 
@@ -333,12 +347,11 @@ app.post("/join", connectEnsureLogin.ensureLoggedIn(), async (request, response)
 
         if (existingUser) {
             errors.push({ message: "User with the same email already exists." });
-            return response.render("join", { eventData, errors });
         }
 
         if (errors.length > 0) {
             // If there are validation errors, render the form with errors
-            return response.render("join", { eventData, errors });
+            return response.render("join", { eventData, errors, csrfToken: request.csrfToken() });
         }
 
         // If no errors, proceed with adding the user to the database
@@ -390,10 +403,10 @@ app.get("/joinAsTeam", async (request, response) => {
         const eventData = await Events.findByPk(eventId);
         console.log(eventData);
         if (!eventData) {
-            return response.status(404).render("joinAsTeam", { errors: ["Event Not Found"] });
+            return response.status(404).render("joinAsTeam", { errors: ["Event Not Found"], csrfToken: request.csrfToken() });
         }
         
-        return response.render("joinAsTeam", { eventData, errors: [], maxTeamSize: eventData.maxSize });
+        return response.render("joinAsTeam", { eventData, errors: [], maxTeamSize: eventData.maxSize, csrfToken: request.csrfToken()});
     } catch (error) {
         console.error(error);
         return response.status(500).json({ error: 'Internal Server Error' });
@@ -452,7 +465,7 @@ app.post("/submitTeam", async (request, response) => {
         }
 
         if (errors.length > 0) {
-            return response.render("joinAsTeam", { eventData, errors, maxTeamSize: eventData.maxSize });
+            return response.render("joinAsTeam", { eventData, errors, maxTeamSize: eventData.maxSize, csrfToken: request.csrfToken() });
         }
 
         const newTeam = await Teams.create({
@@ -495,6 +508,9 @@ app.post("/submitTeam", async (request, response) => {
   
 app.get("/profile", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     try {
+        if (!request.isAuthenticated()) {
+            return response.redirect("/login");
+        }
         const loggedInUserEmail = request.user.email;
         
         // Find all events created by the logged-in user
@@ -539,7 +555,7 @@ app.get("/profile", connectEnsureLogin.ensureLoggedIn(), async (request, respons
                 },
             ],
         });
-        return response.render("profile", { userCreatedEvents, userJoinedEvents, userJoinedTeams, email: request.user.email});
+        return response.render("profile", { userCreatedEvents, userJoinedEvents, userJoinedTeams, email: request.user.email, csrfToken: request.csrfToken() });
     } catch (error) {
         console.error(error);
         return response.status(500).json({ error: 'Internal Server Error' });
@@ -602,7 +618,6 @@ app.post("/removeEmail/:email/:teamId", connectEnsureLogin.ensureLoggedIn(), asy
         return response.status(500).json({ error: 'Internal Server Error' });
     }
 });
-
 
 
 app.post('/removeUser/:userId', connectEnsureLogin.ensureLoggedIn(), async (req, res) => {

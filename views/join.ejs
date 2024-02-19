@@ -7,6 +7,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="<%= csrfToken %>">
   <title>Join Event</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
 </head>
@@ -32,6 +33,7 @@
       <% } %>
 
       <form action="/join?id=<%= eventData.id %>" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <label for="name" class="block text-sm font-medium text-gray-600 mb-2">Name:</label>
         <input type="text" id="name" name="name" required class="mt-1 p-2 border rounded-md w-full mb-4">
 

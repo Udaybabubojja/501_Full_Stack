@@ -10,7 +10,9 @@
                             <path fill="none" d="M0 0h48v48H0z"></path>
                         </svg>
                     </button>
-                    <form id="deleteEvent<%= event.id %>" method="post" action="/removeEvent/<%= event.id %>" class="hidden"></form>
+                    <form id="deleteEvent<%= event.id %>" method="post" action="/removeEvent/<%= event.id %>" class="hidden">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    </form>
                     <h3 class="text-xl font-semibold mb-4"><%= event.id %></h3>
                     <h3 class="text-xl font-semibold mb-4"><%= event.eventName %></h3>
                     <p class="text-gray-700 mb-4">Created by: <%= event.email %></p>
@@ -26,7 +28,9 @@
                                 <button type="submit" form="deleteUser<%= user.id %>" class="absolute top-1 right-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 18" id="delete"><g fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"><g stroke="#000" stroke-width="2" transform="translate(-1441 -1567)"><g transform="translate(1442 1568)"><path d="M20 0H7L0 8l7 8h13a2 2 0 002-2V2a2 2 0 00-2-2zM17 5l-6 6M11 5l6 6"></path></g></g></g></svg>
                                 </button>
-                                <form id="deleteUser<%= user.id %>" method="post" action="/removeUser/<%= user.id %>" class="hidden"></form>
+                                <form id="deleteUser<%= user.id %>" method="post" action="/removeUser/<%= user.id %>" class="hidden">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                </form>
                             </li>
                         <% }); %>
                     </ul>
@@ -44,7 +48,9 @@
                                 <button type="submit" form="deleteTeam<%= team.id %>" class="absolute top-1 right-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 18" id="delete"><g fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"><g stroke="#000" stroke-width="2" transform="translate(-1441 -1567)"><g transform="translate(1442 1568)"><path d="M20 0H7L0 8l7 8h13a2 2 0 002-2V2a2 2 0 00-2-2zM17 5l-6 6M11 5l6 6"></path></g></g></g></svg>
                                 </button>
-                                <form id="deleteTeam<%= team.id %>" method="post" action="/removeTeam/<%= team.id %>" class="hidden"></form>
+                                <form id="deleteTeam<%= team.id %>" method="post" action="/removeTeam/<%= team.id %>" class="hidden">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                </form>
                             </ul>
                         </div>
                     <% }); %>

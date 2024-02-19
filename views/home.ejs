@@ -9,13 +9,6 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-TkkwI1UMlATV2XzrN9oAlmTdrj3UPo+Y0CUXjzHjOHzlStgnlB2Z0fRrKvNFf4Dks3J3Mz8PckzsgPDS6pnfZQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
-    * {
-        background-image: url('b.jpg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-      }
-
 
     .profile-btn {
       background-color: #4CAF50;
@@ -68,33 +61,37 @@
       font-size: 15px;
       font-weight: bold;
     }
+    body {
+      background-image: url("../public/flat-lay-work-space-with-notebook-keyboard.jpg");
+      height: 100vh;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
     
   </style>
 </head>
 
 <body class=" p-8 ">
   <div class="flex justify-between items-center mb-8">
-    <h1 class="text-2xl font-semibold">Welcome,<%= user.firstName %> </h1>
+    <h1 class="text-2xl font-semibold text-white">Welcome,  <%= user.firstName +' '+ user.lastName %> </h1>
     <div>
       <% if (user && user.isAdmin) { %>
         <!-- Only render the button if the user is an admin -->
         <button class="create-event-btn mr-4" onclick="window.location.href='/events'">
           <i class="fas fa-plus-circle mr-2 display: flex ">
-            <svg id="plus" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 3h18v18H3zM12 8v8m-4-4h8" fill="white"/> <!-- Apply fill="white" to the path element -->
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewbox=" 0 0 48 48"id="add"><path fill="none" d="M0 0h48v48H0z"></path><path d="M8 12H4v28c0 2.21 1.79 4 4 4h28v-4H8V12zm32-8H16c-2.21 0-4 1.79-4 4v24c0 2.21 1.79 4 4 4h24c2.21 0 4-1.79 4-4V8c0-2.21-1.79-4-4-4zm-2 18h-8v8h-4v-8h-8v-4h8v-8h4v8h8v4z" fill="white"></path></svg>
             <b class="cr ml-2">Create Event</b>
           </i>
         </button>
       <% } %>
-      <button class="profile-btn mr-4" onclick="window.location.href='/profile'">
-        <i class="fas fa-user mr-2"></i> Profile
+      <button class="profile-btn mr-4 display:flex" onclick="window.location.href='/profile'">
+        <i class="fas fa-user mr-2 display: flex">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" id="profile"><path fill="white" d="M5.84846399,13.5498221 C7.28813318,13.433801 8.73442297,13.433801 10.1740922,13.5498221 C10.9580697,13.5955225 11.7383286,13.6935941 12.5099314,13.8434164 C14.1796238,14.1814947 15.2696821,14.7330961 15.73685,15.6227758 C16.0877167,16.317132 16.0877167,17.1437221 15.73685,17.8380783 C15.2696821,18.727758 14.2228801,19.3149466 12.4926289,19.6174377 C11.7216312,19.7729078 10.9411975,19.873974 10.1567896,19.9199288 C9.43008411,20 8.70337858,20 7.96802179,20 L6.64437958,20 C6.36753937,19.9644128 6.09935043,19.9466192 5.83981274,19.9466192 C5.05537891,19.9062698 4.27476595,19.8081536 3.50397353,19.6530249 C1.83428106,19.3327402 0.744222763,18.7633452 0.277054922,17.8736655 C0.0967111971,17.5290284 0.00163408158,17.144037 0.000104217816,16.752669 C-0.00354430942,16.3589158 0.0886574605,15.9704652 0.268403665,15.6227758 C0.72692025,14.7330961 1.81697855,14.1548043 3.50397353,13.8434164 C4.27816255,13.6914539 5.06143714,13.5933665 5.84846399,13.5498221 Z M8.00262682,-1.16351373e-13 C10.9028467,-1.16351373e-13 13.2539394,2.41782168 13.2539394,5.40035587 C13.2539394,8.38289006 10.9028467,10.8007117 8.00262682,10.8007117 C5.10240696,10.8007117 2.75131423,8.38289006 2.75131423,5.40035587 C2.75131423,2.41782168 5.10240696,-1.16351373e-13 8.00262682,-1.16351373e-13 Z" transform="translate(4 2)"></path></svg>
+          <b class="cr ml-2">Profile</b>
+        </i> 
       </button>
-      <form action="/logout" method="post" class="inline-block">
-        <button type="submit" class="signout-btn">
-          <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
-        </button>
-      </form>
+      
     </div>
   </div>
 

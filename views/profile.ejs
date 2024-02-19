@@ -13,14 +13,19 @@
 
         <!-- Home Button -->
         <a href="/home" class="bg-blue-500 text-white py-2 px-4 rounded inline-block mb-4">Home</a>
-
+        <form action="/logout" method="post" class="inline-block">
+            <button type="submit" class="signout-btn">
+              <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            </button>
+          </form>
         <!-- Include Events Section -->
-        <%- include('eventsSection', { userCreatedEvents }) %>
+        <%- include('eventsSection', { userCreatedEvents, csrfToken:csrfToken }) %>
 
         <!-- Include Users Section-->
-        <%- include('usersSection', { userJoinedEvents }) %>
+        <%- include('usersSection', { userJoinedEvents, csrfToken }) %>
         
-        <%- include('teamsSection', { userJoinedTeams, email }) %>
+        <%- include('teamsSection', { userJoinedTeams, email, csrfToken }) %>
 
 
     </div>
