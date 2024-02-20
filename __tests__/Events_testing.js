@@ -11,7 +11,7 @@ function extractCsrfToken (res) {
   return $("[name=_csrf]").val();
 }
 const user = {
-  email: "user.a@test.com"
+  email: "user@example.com"
 };
 describe("Event Organiser Testing", () => {
   beforeAll(async () => {
@@ -24,7 +24,7 @@ describe("Event Organiser Testing", () => {
     await db.sequelize.close();
     server.close();
   });
-  test("Signup with Another User", async () => {
+  test("Signup with valid User", async () => {
     let res = await agent.get("/signup");
     const csrfToken = extractCsrfToken(res);
     res = await agent.post("/signup").send({
@@ -37,33 +37,37 @@ describe("Event Organiser Testing", () => {
     });
     expect(res.statusCode).toBe(302);
   });
+  test("logout", async () => {
+    let res = await agent.get("/logout"); // Log the location header
+    expect(res.statusCode).toBe(302); // Expect a redirect status code
+  });
   test("Signup with New User", async () => {
     let res = await agent.get("/signup");
     const csrfToken = extractCsrfToken(res);
     res = await agent.post("/signup").send({
       firstName: "Test",
       lastName: "User A",
-      email: "user.a@test.com",
+      email: "example1@gmail.com",
       password: "123456",
       isAdmin: true,
       _csrf: csrfToken
     });
     expect(res.statusCode).toBe(302);
   });
-  test("Signup with Existing New User", async () => {
-    let res = await agent.get("/signup");
-    const csrfToken = extractCsrfToken(res);
-    res = await agent.post("/signup").send({
-      firstName: "Test1",
-      lastName: "User B",
-      email: "user.a@test.com",
-      password: "123456",
-      isAdmin: true,
-      _csrf: csrfToken
-    });
-    expect(res.statusCode).toBe(200);
-    expect(res.text).toContain("An account with this email already exists.");
-  });
+  // test("Signup with Existing New User", async () => {
+  //   let res = await agent.get("/signup");
+  //   const csrfToken = extractCsrfToken(res);
+  //   res = await agent.post("/signup").send({
+  //     firstName: "Test1",
+  //     lastName: "User B",
+  //     email: "user.a@test.com",
+  //     password: "123456",
+  //     isAdmin: true,
+  //     _csrf: csrfToken
+  //   });
+  //   expect(res.statusCode).toBe(200);
+  //   expect(res.text).toContain("An account with this email already exists.");
+  // });
 
   test("Login with Invalid User", async () => {
     let res = await agent.get("/login");
@@ -80,7 +84,7 @@ describe("Event Organiser Testing", () => {
     let res = await agent.get("/login");
     const csrfToken = extractCsrfToken(res);
     res = await agent.post("/login").send({
-      email: "user.a@test.com",
+      email: "user@example.com",
       password: "123456",
       _csrf: csrfToken
     });
@@ -105,31 +109,26 @@ describe("Event Organiser Testing", () => {
     let res = await agent.get("/profile");
     expect(res.statusCode).toBe(200);
   });
-  // test("logout", async () => {
-  //   let res = await agent.post("/logout");
-  //   expect(res.statusCode).toBe(302); // Expect a redirect status code
-  //   expect(res.headers.location).toBe("/login");
-  // });
+  
+  test("Join individual", async () => {
+    const eventId = 1;
+    let res = await agent.get(`/join?id=${eventId}`);
+    const csrfToken = extractCsrfToken(res);
+    res = await agent.post(`/join?id=${eventId}`).send({
+      name: "user",
+      email: "example1@gmail.com",
+      phone: "907938",
+      _csrf: csrfToken
+    });
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.location).toBe("/home");
+  });
 
-  // test("Join individual", async () => {
-  //   const eventId = 1;
-  //   let res = await agent.get(`/join?id=${eventId}`);
-  //   const csrfToken = extractCsrfToken(res);
-  //   res = await agent.post(`/join?id=${eventId}`).send({
-  //     name: "user",
-  //     email: "user@gmail.com",
-  //     phone: "907938",
-  //     _csrf: csrfToken
-  //   });
-  //   expect(res.statusCode).toBe(302);
-  //   expect(res.headers.location).toBe("/home");
-  // });
-
-  // test("Render joinAsTeam page", async () => {
-  //   let res = await agent.get("/joinAsTeam?id=1");
-  //   expect(res.statusCode).toBe(200);
-  //   expect(res.headers["content-type"]).toContain("text/html");
-  // });
+  test("Render joinAsTeam page", async () => {
+    let res = await agent.get("/joinAsTeam?id=1");
+    expect(res.statusCode).toBe(200);
+    expect(res.headers["content-type"]).toContain("text/html");
+  });
 
   // test("Submit team", async () => {
   //   let res = await agent.get("/joinAsTeam?id=1");

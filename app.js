@@ -163,26 +163,18 @@ app.get("/login", async (request, response) => {
 app.post("/login", passport.authenticate('local', {
     successRedirect: '/home',
     failureRedirect: '/login',
-    failureFlash: true // This option is necessary for flash messages
+    failureFlash: true 
 }));
 
 // Add this route to handle logout
-app.post("/logout", (request, response) => {
+app.get("/logout", (request, response) => {
     request.logout((err) => {
         if (err) {
             return response.status(400).json({ error: 'Logout failed' });
         }
-        // Clear user session
-        request.session.destroy((err) => {
-            if (err) {
-                return response.status(500).json({ error: 'Session destroy failed' });
-            }
-            // Redirect to login page
-            response.redirect("/login");
-        });
+        response.redirect("/login");
     });
 });
-
 
 
 // Home route
