@@ -180,11 +180,11 @@ app.get(
       if (!request.user) response.redirect("/login");
 
       // Delete events with null email (assuming this is how you mark events as expired)
-      await Events.destroy({
-        where: {
-          email: null,
-        },
-      });
+      // await Events.destroy({
+      //   where: {
+      //     email: null,
+      //   },
+      // });
 
       // Fetch all events from the database
       const eventsData = await Events.findAll();

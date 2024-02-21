@@ -91,7 +91,12 @@
           <b class="cr ml-2">Profile</b>
         </i> 
       </button>
-      
+      <form action="/logout" method="get">
+        <button type="submit" class="mr-3 ml-3 btn-secondary text-white py-2 px-4 rounded inline-block transition-colors duration-300 hover:bg-red-600">
+            <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        </button>
+    </form>
     </div>
   </div>
 
