@@ -173,27 +173,39 @@ app.get("/logout", (request, response) => {
   });
 });
 
-// Home route
 app.get(
   "/home",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     try {
-      // Fetch all events from the database
       if (!request.user) response.redirect("/login");
+
+      // Delete events with null email (assuming this is how you mark events as expired)
       await Events.destroy({
         where: {
           email: null,
         },
       });
+
+      // Fetch all events from the database
       const eventsData = await Events.findAll();
+
+      // Filter out events where the event time has already passed
+      const now = new Date();
+      const activeEventsData = eventsData.filter((event) => {
+        const eventDateTime = new Date(event.date + "T" + event.eventTime);
+        return eventDateTime > now;
+      });
+
+      // Fetch account details
       const account = await Accounts.findOne({
         where: {
           email: request.user.email,
         },
       });
+
       return response.render("home", {
-        eventsData,
+        eventsData: activeEventsData,
         user: request.user,
         username: account.firstName,
         csrfToken: request.csrfToken(),
@@ -278,12 +290,10 @@ app.get(
       const eventData = await Events.findByPk(eventId);
       console.log(eventData);
       if (!eventData) {
-        return response
-          .status(404)
-          .render("join", {
-            errors: ["Event Not Found"],
-            csrfToken: request.csrfToken(),
-          });
+        return response.status(404).render("join", {
+          errors: ["Event Not Found"],
+          csrfToken: request.csrfToken(),
+        });
       }
       return response.render("join", {
         eventData,
@@ -354,12 +364,10 @@ app.get("/joinAsTeam", async (request, response) => {
     const eventData = await Events.findByPk(eventId);
     console.log(eventData);
     if (!eventData) {
-      return response
-        .status(404)
-        .render("joinAsTeam", {
-          errors: ["Event Not Found"],
-          csrfToken: request.csrfToken(),
-        });
+      return response.status(404).render("joinAsTeam", {
+        errors: ["Event Not Found"],
+        csrfToken: request.csrfToken(),
+      });
     }
 
     return response.render("joinAsTeam", {
