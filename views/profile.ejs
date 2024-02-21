@@ -28,7 +28,7 @@
 
         /* Background Image */
         body {
-            background-image: url('../public/b.jpg');
+            background-image: url('../public/desktop-wallpaper-funny-simple-anime-simplistic-fun-anime-simplistic.png');
             background-size: cover;
             background-position: center;
         }
@@ -37,7 +37,7 @@
 <body class="bg-gray-100 min-h-screen font-sans ml-3 p-8">
 
     <div class="container mx-auto py-8">
-        <h1 class="text-3xl font-bold mb-8">User Profile</h1>
+        <h1 class="text-3xl font-bold mb-8 text-white">User Profile</h1>
 
         <!-- Navigation -->
         <nav class="mb-8 flex justify-end items-center">
@@ -58,7 +58,7 @@
         
         <!-- Events Section -->
         <section class="mb-8">
-            <h2 class="text-xl font-semibold mb-4">Events Created</h2>
+            <h2 class="text-xl font-semibold mb-4 text-white">Events Created</h2>
             <div class="fadeIn">
                 <%- include('eventsSection', { userCreatedEvents, csrfToken:csrfToken }) %>
             </div>
@@ -66,7 +66,7 @@
 
         <!-- Users Section -->
         <section class="mb-8">
-            <h2 class="text-xl font-semibold mb-4">Events Joined</h2>
+            <h2 class="text-xl font-semibold mb-4 text-white">Events Joined</h2>
             <div class="fadeIn">
                 <%- include('usersSection', { userJoinedEvents, csrfToken }) %>
             </div>
@@ -74,7 +74,7 @@
 
         <!-- Teams Section -->
         <section>
-            <h2 class="text-xl font-semibold mb-4">Teams</h2>
+            <h2 class="text-xl font-semibold mb-4 text-white">Teams</h2>
             <div class="fadeIn">
                 <%- include('teamsSection', { userJoinedTeams, email, csrfToken }) %>
             </div>

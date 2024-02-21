@@ -1,9 +1,8 @@
-const supertest = require("supertest");
-const request = supertest; // Corrected the import name
+const request = require("supertest");
 const db = require("../models/index");
 const app = require("../app");
 const http = require("http");
-const { describe, beforeAll, afterAll, test, expect } = require("@jest/globals"); // Import describe, beforeAll, afterAll, test, and expect from Jest
+const { describe, beforeAll, afterAll, test, expect } = require("@jest/globals"); 
 const cheerio = require("cheerio");
 let server, agent;
 function extractCsrfToken (res) {
@@ -37,37 +36,6 @@ describe("Event Organiser Testing", () => {
     });
     expect(res.statusCode).toBe(302);
   });
-  test("logout", async () => {
-    let res = await agent.get("/logout"); // Log the location header
-    expect(res.statusCode).toBe(302); // Expect a redirect status code
-  });
-  test("Signup with New User", async () => {
-    let res = await agent.get("/signup");
-    const csrfToken = extractCsrfToken(res);
-    res = await agent.post("/signup").send({
-      firstName: "Test",
-      lastName: "User A",
-      email: "example1@gmail.com",
-      password: "123456",
-      isAdmin: true,
-      _csrf: csrfToken
-    });
-    expect(res.statusCode).toBe(302);
-  });
-  // test("Signup with Existing New User", async () => {
-  //   let res = await agent.get("/signup");
-  //   const csrfToken = extractCsrfToken(res);
-  //   res = await agent.post("/signup").send({
-  //     firstName: "Test1",
-  //     lastName: "User B",
-  //     email: "user.a@test.com",
-  //     password: "123456",
-  //     isAdmin: true,
-  //     _csrf: csrfToken
-  //   });
-  //   expect(res.statusCode).toBe(200);
-  //   expect(res.text).toContain("An account with this email already exists.");
-  // });
 
   test("Login with Invalid User", async () => {
     let res = await agent.get("/login");
@@ -118,34 +86,28 @@ describe("Event Organiser Testing", () => {
       name: "user",
       email: "example1@gmail.com",
       phone: "907938",
-      _csrf: csrfToken
+      _csrf: csrfToken,
     });
     expect(res.statusCode).toBe(302);
     expect(res.headers.location).toBe("/home");
   });
-
-  test("Render joinAsTeam page", async () => {
+  
+  test("Join as Team", async () => {
     let res = await agent.get("/joinAsTeam?id=1");
-    expect(res.statusCode).toBe(200);
-    expect(res.headers["content-type"]).toContain("text/html");
+    const csrfToken = extractCsrfToken(res);
+  
+    res = await agent.post("/submitTeam").send({
+      teamName: "Team A",
+      eventId: 1,
+      memberNames: ["John Doe", "Jane Doe", "Jack"],
+      memberEmails: ["john@example.com", "jane@example.com", "jack@example.com"],
+      memberPhones: ["1234567890", "0987654321", "974801948"],
+      _csrf: csrfToken
+    });
+  
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.location).toBe("/home");
   });
-
-  // test("Submit team", async () => {
-  //   let res = await agent.get("/joinAsTeam?id=1");
-  //   const csrfToken = extractCsrfToken(res);
-  
-  //   res = await agent.post("/submitTeam").send({
-  //     teamName: "Team A",
-  //     eventId: 1,
-  //     memberNames: ["John Doe", "Jane Doe", "Jack"],
-  //     memberEmails: ["john@example.com", "jane@example.com", "jack@example.com"],
-  //     memberPhones: ["1234567890", "0987654321", "974801948"],
-  //     _csrf: csrfToken
-  //   });
-  
-  //   expect(res.statusCode).toBe(302);
-  //   expect(res.headers.location).toBe("/home");
-  // });
 
   
   
@@ -155,22 +117,37 @@ describe("Event Organiser Testing", () => {
   //   expect(res.statusCode).toBe(302);
   // });
   
-  // test("Exit from event", async () => {
-  //   const userId = 1;
-  //   const res = await agent.post(`/removeUser/:${userId}`);
-  //   expect(res.statusCode).toBe(500);
-  // });
+  test("Exit from event", async () => {
+    let res = await agent.get("/profile");
+    const csrfToken = extractCsrfToken(res);
+    const userId =1;
+    res = await agent.post(`/removeUser/${userId}`).send({
+      _csrf: csrfToken
+    })
+      // Corrected URL format
+    expect(res.statusCode).toBe(302);
+  });
   
-  // test("Remove team", async () => {
-  //   const teamId = 1;
-  //   const res = await agent.post(`/removeTeam/${teamId}`);
-  //   expect(res.statusCode).toBe(302);
-  // });
-
-  // test("Remove event", async () => {
-  //   const eventId = 1;
-  //   const res = await agent.post(`/removeEvent/${eventId}`);
-  //   expect(res.statusCode).toBe(302);
-  // });
-
+  test("Remove team", async () => {
+    let res = await agent.get("/profile");
+    const csrfToken = extractCsrfToken(res);
+    const teamId = 1;
+    res = await agent.post(`/removeTeam/${teamId}`).send({
+      _csrf: csrfToken
+    });
+    expect(res.statusCode).toBe(302);
+  });
+  test("Remove event", async () => {
+    let res = await agent.get("/profile");
+    const csrfToken = extractCsrfToken(res);
+    const eventId = 1;
+    res = await agent.post(`/removeEvent/${eventId}`).send({
+      _csrf: csrfToken
+    });
+    expect(res.statusCode).toBe(302);
+  });
+  test("logout", async () => {
+    let res = await agent.get("/logout"); // Log the location header
+    expect(res.statusCode).toBe(302); // Expect a redirect status code
+  });
 });

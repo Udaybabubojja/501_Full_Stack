@@ -15,11 +15,11 @@ const flash = require('express-flash');
 const Sequelize = require('sequelize');
 const { Op } = require('sequelize');
 const transporter = require("./mail.js");
-// Set the view engine to EJS
 app.set("view engine", "ejs");
 
-// Set the views directory
+// Set the views and public directory
 app.set("views", path.join(__dirname, "views"));
+app.use('/public', express.static(path.join(__dirname, 'public')))
 
 // Use body-parser middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -27,8 +27,6 @@ app.use(bodyParser.json());
 app.use(cookieParser("Something is there"));
 app.use(csrf("abcdefghijklmnopqrstuvwxyz123456", ["PUT", "POST", "DELETE"]));
 app.use(flash());
-
-app.use('/public', express.static(path.join(__dirname, 'public')))
 
 // Passport middleware setup
 app.use(session({
@@ -82,7 +80,7 @@ passport.deserializeUser(async (id, done) => {
 });
 
 
-//about page:
+//about page
 app.get("/", async (request, response)=>{
     // const user5 = await Events.findByPk(38);
     // console.log(user5);
@@ -99,30 +97,22 @@ app.post("/signup", async (request, response) => {
     try {
         const { firstName, lastName, email, password, isAdmin } = request.body;
         const errors = [];
-
-        // Validate input fields
         if (!firstName || firstName.trim() === "") {
             errors.push({ message: "First Name is required." });
         }
-
         if (!email || email.trim() === "") {
             errors.push({ message: "Email is required." });
         }
-
         if (!password || password.trim() === "") {
             errors.push({ message: "Password is required." });
         }
         const existingAccount = await Accounts.findOne({ where: { email } });
         if (existingAccount) {
-            errors.push({ message: "An account with this email already exists." });
-            
+            errors.push({ message: "An account with this email already exists." });      
         }
         if (errors.length > 0) {
-            // If there are validation errors, render the signup form with errors
             return response.render("signup", { errors, csrfToken: request.csrfToken() });
         }
-
-        // If no errors, proceed with creating the account
         const hashedPassword = await bcrypt.hash(password, 10);
         const account = await Accounts.create({
             firstName,
@@ -131,18 +121,7 @@ app.post("/signup", async (request, response) => {
             password: hashedPassword,
             isAdmin
         });
-        // await transporter.sendMail({
-        //     from: '"Events Organiser" <Event_organiser@outlook.com>',
-        //     to: email,
-        //     subject: 'Welcome to Events Organiser',
-        //     html: `
-        //         <p>Hello ${firstName},</p>
-        //         <p>Welcome to Events Organiser!</p>
-        //         <p>Your account has been successfully created.</p>
-        //         <p>Thank you for joining us!</p>
-        //     `
-        // });
-        // console.log(account);
+        console.log(account);
         return response.redirect("/login");
     } catch (error) {
         console.error(error);
@@ -152,7 +131,6 @@ app.post("/signup", async (request, response) => {
 
 // Login route
 app.get("/login", async (request, response) => {
-    // Render the login form with flash messages
     const a = await request.user;
     console.log(a);
     if(!a)
@@ -166,7 +144,7 @@ app.post("/login", passport.authenticate('local', {
     failureFlash: true 
 }));
 
-// Add this route to handle logout
+//logout
 app.get("/logout", (request, response) => {
     request.logout((err) => {
         if (err) {
@@ -175,7 +153,6 @@ app.get("/logout", (request, response) => {
         response.redirect("/login");
     });
 });
-
 
 // Home route
 app.get("/home", connectEnsureLogin.ensureLoggedIn(),  async (request, response) => {
@@ -193,7 +170,6 @@ app.get("/home", connectEnsureLogin.ensureLoggedIn(),  async (request, response)
                 email: request.user.email
             }
         });
-        // Render the home.ejs view with eventsData
         return response.render("home", { eventsData , user: request.user, username: account.firstName, csrfToken: request.csrfToken()});
     } catch (error) {
         console.error(error);
@@ -201,7 +177,7 @@ app.get("/home", connectEnsureLogin.ensureLoggedIn(),  async (request, response)
     }
 });
 
-// Events route
+// Events routes
 app.get("/events", connectEnsureLogin.ensureLoggedIn(), (request, response) => {
     return response.render("events", { errors: [] , csrfToken: request.csrfToken()});
 });
@@ -230,12 +206,9 @@ app.post("/events", connectEnsureLogin.ensureLoggedIn(), async (request, respons
             errors.push({ message: "Event Name is already exists" });
         }
         if (errors.length > 0) {
-            // If there are validation errors, render the form with errors
             return response.render("events", { errors,  csrfToken: request.csrfToken() });
         }
-        // Retrieve the email of the logged-in user from request.user
         const email = request.user.email;
-        console.log(eventDate);
         const name = eventName.trim();
         const event = await Events.create({
             email,
@@ -245,25 +218,7 @@ app.post("/events", connectEnsureLogin.ensureLoggedIn(), async (request, respons
             date:eventDate,
             eventTime
         });
-        // await transporter.sendMail({
-        //     from: '"Events Organiser" <Event_organiser@outlook.com>',
-        //     to: email,
-        //     subject: 'Event Created Successfully',
-        //     html: `
-        //         <p>Hello,🎉</p>
-        //         <p>Your event "${eventName.trim()}" has been successfully created.</p>
-        //         <p>Details:</p>
-        //         <ul>
-        //             <li>Event Name: ${eventName.trim()}</li>
-        //             <li>Maximum Team Size: ${maxSize}</li>
-        //             <li>Description: ${description}</li>
-        //             <li>Date: ${eventDate}</li>
-        //             <li>Time: ${eventTime}</li>
-        //         </ul>
-        //         <p>Thank you for using our platform! 🚀 </p>
-        //     `,
-        // });
-        // console.log("Details of the Event: ", event);
+        console.log(event);
         response.redirect("/profile");
     } catch (error) {
         console.log("Profile error");
@@ -272,31 +227,15 @@ app.post("/events", connectEnsureLogin.ensureLoggedIn(), async (request, respons
     }
 });
 
-
-// Join route
+// Join routes
 app.get("/join",  connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     try {
         const eventId = request.query.id;
-        // Users.destroy({
-        //     where: {
-        //         eventId: null
-        //     }
-        // })
-        // .then((deletedRows) => {
-        //     console.log(`${deletedRows} rows deleted.`);
-        // })
-        // .catch((error) => {
-        //     console.error(error);
-        // });
-        // Fetch event details using the eventId
         const eventData = await Events.findByPk(eventId);
         console.log(eventData);
-        // Check if eventData is null
         if (!eventData) {
-            // Render an error page or redirect to the home page
             return response.status(404).render("join", {errors: ["Event Not Found"], csrfToken: request.csrfToken() } );
         }
-        // Render the join.ejs view with event details
         return response.render("join", { eventData, errors: [], csrfToken: request.csrfToken() });
     } catch (error) {
         console.error(error);
@@ -306,81 +245,39 @@ app.get("/join",  connectEnsureLogin.ensureLoggedIn(), async (request, response)
 
 app.post("/join", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     try {
-
         const eventId = request.query.id;
         console.log(eventId);
-
-        // Fetch event details using the eventId
         const eventData = await Events.findByPk(eventId);
-
-        // Perform validation
         const { name, email, phone } = request.body;
         const errors = [];
-
         if (!name || name.trim() === "") {
             errors.push({ message: "Name is required." });
         }
-
         if (!email || email.trim() === "") {
             errors.push({ message: "Email is required." });
         }
-
         if (!phone || phone.trim() === "") {
             errors.push({ message: "Phone Number is required." });
         }
-
-        // Check if a user with the same email and eventId already exists
         const existingUser = await Users.findOne({
             where: {
                 eventId,
                 email,
             }
         });
-
         if (existingUser) {
             errors.push({ message: "User with the same email already exists." });
         }
-
         if (errors.length > 0) {
-            // If there are validation errors, render the form with errors
             return response.render("join", { eventData, errors, csrfToken: request.csrfToken() });
         }
-
-        // If no errors, proceed with adding the user to the database
-        // (Assuming you have a Users model for storing user information)
         const user = await Users.create({
             eventId,
             name,
             email,
             phone,
         });
-        
-        // Send enrollment confirmation email to the user
-        // await transporter.sendMail({
-        //     from: '"Event Organiser" <Event_organiser@outlook.com>',
-        //     to: email,
-        //     subject: 'Enrollment Confirmation for Event',
-        //     html: `
-        //         <p>Hello ${name},</p>
-        //         <p>You have successfully enrolled in the event "${eventData.eventName}".</p>
-        //         <p>Event Details:</p>
-        //         <ul>
-        //             <li>Event Name: ${eventData.eventName}</li>
-        //             <li>Date: ${eventData.date}</li>
-        //             <li>Time: ${eventData.eventTime}</li>
-        //             <li>Description: ${eventData.description}</li>
-        //         </ul>
-        //         <p>Your provided information:</p>
-        //         <ul>
-        //             <li>Name: ${name}</li>
-        //             <li>Email: ${email}</li>
-        //             <li>Phone Number: ${phone}</li>
-        //         </ul>
-        //         <p>Thank you for joining the event!</p>
-        //     `,
-        // });
-
-        // console.log("User Value: ", user);
+        console.log(user);
         return response.redirect("/home");
     } catch (error) {
         console.error(error);
@@ -388,7 +285,7 @@ app.post("/join", connectEnsureLogin.ensureLoggedIn(), async (request, response)
     }
 });
 
-
+//join as team routes
 app.get("/joinAsTeam", async (request, response) => {
     try {
         const eventId = request.query.id;
@@ -459,7 +356,6 @@ app.post("/submitTeam", async (request, response) => {
         if (errors.length > 0) {
             return response.render("joinAsTeam", { eventData, errors, maxTeamSize: eventData.maxSize, csrfToken: request.csrfToken() });
         }
-
         const newTeam = await Teams.create({
             name: teamName,
             eventId,
@@ -467,28 +363,7 @@ app.post("/submitTeam", async (request, response) => {
             memberEmails,
             memberPhones
         });
-
-        // // Send email notification to each member
-        // for (const email of memberEmails) {
-        //     await transporter.sendMail({
-        //         from: '"Events Organiser" <Event_organiser@outlook.com>',
-        //         to: email,
-        //         subject: 'Team Enrollment Confirmation',
-        //         html: `
-        //             <p>Hello,</p>
-        //             <p>You have been successfully enrolled in the team "${teamName}" for the event "${eventData.eventName}".</p>
-        //             <p>Team Details:</p>
-        //             <ul>
-        //                 <li>Team Name: ${teamName}</li>
-        //                 <li>Event Name: ${eventData.eventName}</li>
-        //                 <li>Date: ${eventData.date}</li>
-        //                 <li>Time: ${eventData.eventTime}</li>
-        //             </ul>
-        //             <p>Thank you for participating!</p>
-        //         `
-        //     });
-        // }
-        // console.log(newTeam);
+        console.log(newTeam);
         response.redirect("/home");
     } catch (error) {
         console.error(error);
@@ -496,7 +371,7 @@ app.post("/submitTeam", async (request, response) => {
     }
 });
 
-  
+//profile route
 app.get("/profile", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     try {
         if (!request.isAuthenticated()) {
@@ -504,7 +379,6 @@ app.get("/profile", connectEnsureLogin.ensureLoggedIn(), async (request, respons
         }
         const loggedInUserEmail = request.user.email;
         
-        // Find all events created by the logged-in user
         const userCreatedEvents = await Events.findAll({
             where: {
                 email: loggedInUserEmail,
@@ -520,8 +394,6 @@ app.get("/profile", connectEnsureLogin.ensureLoggedIn(), async (request, respons
                 }
             ],
         });
-        
-        // Find all events in which the user is enrolled
         const userJoinedEvents = await Users.findAll({
             where: {
                 email: loggedInUserEmail,
@@ -553,6 +425,7 @@ app.get("/profile", connectEnsureLogin.ensureLoggedIn(), async (request, respons
     }
 });
 
+//remove user from the team
 app.post("/removeEmail/:email/:teamId", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     try {
         const removedEmail = request.params.email;
@@ -565,40 +438,13 @@ app.post("/removeEmail/:email/:teamId", connectEnsureLogin.ensureLoggedIn(), asy
         if (memberIndex === -1) {
             return response.status(404).json({ error: "Email not found in team members" });
         }
-        // Remove the email from the team members' list
-        team.memberEmails.splice(memberIndex, 1);
 
-        // Check if the team has less than 2 members after removal
+        team.memberEmails.splice(memberIndex, 1);
         if (team.memberEmails.length < 2) {
-            // If less than 2 members, delete the team
             await team.destroy();
         } else {
-            // If still 2 or more members, save the team with the updated member list
             await team.save();
         }
-
-        // Send email notification to remaining team members
-        // const remainingMembers = team.memberEmails;
-        // for (const email of remainingMembers) {
-        //     await transporter.sendMail({
-        //         from: '"Events Organiser" <Event_organiser@outlook.com>',
-        //         to: email,
-        //         subject: 'Team Member Exit',
-        //         html: `
-        //             <p>Hello,</p>
-        //             <p>${removedEmail} has exited from the team "${team.name}".</p>
-        //             <p>Team Details:</p>
-        //             <ul>
-        //                 <li>Team Name: ${team.name}</li>
-        //                 <li>Event Name: ${team.eventData.eventName}</li>
-        //                 <li>Date: ${team.eventData.date}</li>
-        //                 <li>Time: ${team.eventData.eventTime}</li>
-        //             </ul>
-        //             <p>Thank you.</p>
-        //         `
-        //     });
-        // }
-
         return response.redirect('/profile');
     } catch (error) {
         console.error(error);
@@ -606,35 +452,15 @@ app.post("/removeEmail/:email/:teamId", connectEnsureLogin.ensureLoggedIn(), asy
     }
 });
 
+//remove user from the event
 app.post('/removeUser/:userId', connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
     try {
         const userId = req.params.userId;
         const user = await Users.findByPk(userId);
-
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
-
-        // Store user details before deletion for email notification
-        const userName = user.name;
-        const userEmail = user.email;
-        const eventId = user.eventId;
-        const event = await Events.findByPk(eventId);
-
         await user.destroy();
-
-        // Send email notification to the user
-        // await transporter.sendMail({
-        //     from: '"Events Organiser" <Event_organiser@outlook.com>',
-        //     to: userEmail,
-        //     subject: 'Removed from Event',
-        //     html: `
-        //         <p>Hello ${userName},</p>
-        //         <p>You have been removed from the event "${event.eventName}".</p>
-        //         <p>Thank you.</p>
-        //     `
-        // });
-
         res.redirect("/profile");
     } catch (error) {
         console.error(error);
@@ -642,36 +468,15 @@ app.post('/removeUser/:userId', connectEnsureLogin.ensureLoggedIn(), async (req,
     }
 });
 
-
+//remove team from the event
 app.post('/removeTeam/:teamId', connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
     try {
         const teamId = req.params.teamId;
         const team = await Teams.findByPk(teamId);
-
         if (!team) {
             return res.status(404).json({ error: "Team not found" });
         }
-
-        // Store team details before deletion for email notification
-        const teamName = team.name;
-        const teamMembers = team.memberEmails;
-
         await team.destroy();
-
-        // Send email notification to team members
-        for (const email of teamMembers) {
-            await transporter.sendMail({
-                from: '"Events Organiser" <Event_organiser@outlook.com>',
-                to: email,
-                subject: 'Team Disbanded',
-                html: `
-                    <p>Hello,</p>
-                    <p>The team "${teamName}" has been disbanded.</p>
-                    <p>Thank you.</p>
-                `
-            });
-        }
-
         res.redirect("/profile");
     } catch (error) {
         console.error(error);
@@ -679,45 +484,13 @@ app.post('/removeTeam/:teamId', connectEnsureLogin.ensureLoggedIn(), async (req,
     }
 });
 
+// remove event
 app.post('/removeEvent/:eventId', connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
     try {
         const eventId = req.params.eventId;
-
-        // Find the event and associated users
         const event = await Events.findByPk(eventId);
         const users = await Users.findAll({ where: { eventId } });
-
-        // Find associated teams and team members
         const teams = await Teams.findAll({ where: { eventId } });
-        const teamMembers = [];
-        for (const team of teams) {
-            teamMembers.push(...team.memberEmails);
-        }
-
-        // Collect all email addresses (event participants and team members)
-        const allEmails = [];
-        for (const user of users) {
-            allEmails.push(user.email);
-        }
-        for (const memberEmail of teamMembers) {
-            allEmails.push(memberEmail);
-        }
-        allEmails.push(event.email);
-        // Send email notification to all event participants and team members
-        for (const email of allEmails) {
-            await transporter.sendMail({
-                from: '"Events Organiser" <Event_organiser@outlook.com>',
-                to: email,
-                subject: 'Event Cancelled',
-                html: `
-                    <p>Hello,</p>
-                    <p>The event <b>"${event.eventName}"</b> has been cancelled.</p>
-                    <p>Thank you.</p>
-                `
-            });
-        }
-
-        // Delete associated users, teams, and the event
         for (const user of users) {
             await user.destroy();
         }
@@ -725,7 +498,6 @@ app.post('/removeEvent/:eventId', connectEnsureLogin.ensureLoggedIn(), async (re
             await team.destroy();
         }
         await event.destroy();
-
         res.redirect("/profile");
     } catch (error) {
         console.error(error);
