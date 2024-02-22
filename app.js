@@ -104,7 +104,7 @@ app.get("/signup", (request, response) => {
 
 app.post("/signup", async (request, response) => {
   try {
-    const { firstName, lastName, email, password, isAdmin } = request.body;
+    const { firstName, lastName, email, password } = request.body;
     const errors = [];
     if (!firstName || firstName.trim() === "") {
       errors.push({ message: "First Name is required." });
@@ -131,7 +131,7 @@ app.post("/signup", async (request, response) => {
       lastName,
       email,
       password: hashedPassword,
-      isAdmin,
+      isAdmin: false,
     });
     console.log(account);
     return response.redirect("/login");
