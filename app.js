@@ -617,7 +617,6 @@ app.post(
     }
   },
 );
-
 // remove event
 app.post(
   "/removeEvent/:eventId",
